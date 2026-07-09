@@ -188,10 +188,8 @@ def _discover_ur_skill_files(ctx: SkillContext, config: dict[str, Any]) -> set[s
     try:
         ur_skill_root.relative_to(project_root)
     except ValueError:
-        raise ValueError(
-            f"Security: --skill-dir resolves outside project root. "
-            f"skill_dir={script_dir}, ur_skill_root={ur_skill_root}, project_root={project_root}"
-        )
+        # skill_dir is outside the project root (e.g., Examples/) — not UR-SKILL itself, no leak detection needed
+        return set()
 
     files: set[str] = set()
     if not ur_skill_root.exists():

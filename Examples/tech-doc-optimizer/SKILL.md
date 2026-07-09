@@ -1,11 +1,11 @@
 ---
 name: tech-doc-optimizer
 description: >-
-Use when the user wants to optimize, compress, reorganize, or verify technical documentation in terms of quality, consistency, and semantic fidelity. MUST be invoked if the user mentions 'semantic optimization', 'lossless compression', 'document optimization', 'technical documentation processing', 'document quality verification', 'document reorganization', or 'document consistency'. 
-Trigger: 'Optimize the semantic expression of this technical document', 'Perform lossless compression on the document', 'Verify the document consistency', 'Reorganize the logical structure of the document'.
-type: prompt
-whenToUse: When the user needs semantic optimization, lossless compression, logical reorganization, or consistency verification of technical documents; when systematic optimization based on methodologies is required
+  Use when the user wants to optimize, compress, reorganize, or verify technical documentation for quality, consistency, and semantic fidelity. MUST invoke if the user mentions '语义优化', '无损压缩', '文档优化', '技术文档处理', '文档质量校验', '文档重组', or '文档一致性'. Trigger examples: '优化这份技术文档的语义表达', '对文档进行无损压缩', '校验文档一致性', '重组文档逻辑结构'. Do NOT invoke for general proofreading or grammar correction tasks.
+license: Apache-2.0
 metadata:
+  type: prompt
+  whenToUse: When the user needs semantic optimization, lossless compression, logical reorganization, or consistency verification of technical documents; when systematic optimization based on methodologies is required
   updated: 2026-07-09
 ---
 
