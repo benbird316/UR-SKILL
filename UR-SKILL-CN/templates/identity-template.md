@@ -63,10 +63,10 @@ description: >-
   even if they don't explicitly name [领域]. Trigger examples:
   '[用户 query 示例1]', '[用户 query 示例2]'.
   Do NOT invoke for [排除场景1] or [排除场景2].
-type: prompt
-whenToUse: 当[中文场景描述，与 description 互补]
 metadata:
   updated: {YYYY-MM-DD}
+  type: prompt
+  whenToUse: 当[中文场景描述，与 description 互补]
 ---
 ```
 
@@ -76,8 +76,8 @@ metadata:
 |:---|:---|:---|
 | name | kebab-case，含领域关键词，≤ 64 字符 | 是 |
 | description | 祈使句式 "Use when..."，≤ 1024 字符，含触发示例 + 反向排除 | 是 |
-| type | 固定值 `prompt` | 是 |
-| whenToUse | 中文场景描述，与 description 互补不重复 | 是 |
+| metadata.type | 固定值 `prompt` | 是 |
+| metadata.whenToUse | 中文场景描述，与 description 互补不重复 | 是 |
 | metadata.updated | YYYY-MM-DD 格式 | 是 |
 
 ### 5.3 好坏对比
@@ -85,7 +85,8 @@ metadata:
 ```yaml
 # 差 — 触发率低（描述式、无示例、无排除）
 description: "This is a skill for code security review."
-whenToUse: 代码审查
+metadata:
+  whenToUse: 代码审查
 
 # 好 — 触发率高（祈使式、有示例、有排除）
 description: >-
@@ -95,7 +96,8 @@ description: >-
   don't explicitly name 'OWASP'. Trigger examples:
   '审查这段代码的安全性', 'check my code for vulnerabilities'.
   Do NOT invoke for code style formatting or documentation generation.
-whenToUse: 当用户需要代码安全审查、OWASP 漏洞检测或认证逻辑审计时
+metadata:
+  whenToUse: 当用户需要代码安全审查、OWASP 漏洞检测或认证逻辑审计时
 ```
 
 ### 5.4 常见元数据反模式
@@ -141,10 +143,10 @@ description: >-
   even if they don't explicitly name [领域]. Trigger examples:
   '[用户 query 示例1]', '[用户 query 示例2]'.
   Do NOT invoke for [排除场景1] or [排除场景2].
-type: prompt
-whenToUse: 当[中文场景描述，与 description 互补]
 metadata:
   updated: {YYYY-MM-DD}
+  type: prompt
+  whenToUse: 当[中文场景描述，与 description 互补]
 ---
 ```
 

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/benbird316/UR-SKILL/tree/main/templates/skill-schema.json",
+  "title": "UR-SKILL Frontmatter Schema",
+  "description": "JSON Schema for validating UR-SKILL.md YAML frontmatter. Extends agentskills.io specification with UR-SKILL custom metadata fields.",
+  "type": "object",
+
+  "required": ["name", "description", "metadata"],
+
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Unique SKILL identifier in kebab-case. Must be 1-64 chars, lowercase alphanumeric + hyphens only. No leading/trailing hyphens, no consecutive hyphens. Must match parent directory name. (agentskills.io required)"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "description": "Trigger condition and capability description. Should describe what the skill does AND when to use it. Strongly recommended to start with 'Use when...'. (agentskills.io required)"
+    },
+    "license": {
+      "type": "string",
+      "maxLength": 50,
+      "description": "SPDX license identifier or bundled license filename. E.g., 'Apache-2.0', 'MIT', 'Proprietary. LICENSE.txt has complete terms'. (agentskills.io optional)"
+    },
+    "compatibility": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Environment requirements: intended product, required system packages, network access, etc. Only include if the skill has specific requirements. (agentskills.io optional)"
+    },
+    "allowed-tools": {
+      "type": "string",
+      "description": "Space-separated list of pre-approved tool names the skill may use. Experimental field - support varies by agent implementation. (agentskills.io optional, experimental)"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["updated", "type", "whenToUse"],
+      "properties": {
+        "updated": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "description": "Last updated date in YYYY-MM-DD format. (UR-SKILL required)"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["prompt", "tool", "hybrid"],
+          "description": "SKILL type: 'prompt' (pure prompt, no scripts/resources), 'tool' (executable scripts), 'hybrid' (prompt + scripts/resources). (UR-SKILL required)"
+        },
+        "whenToUse": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "Supplementary trigger scenario in Chinese, complementary to description without duplication. (UR-SKILL required)"
+        }
+      },
+      "additionalProperties": true,
+      "description": "UR-SKILL custom metadata block. Extends agentskills.io optional metadata with required UR-SKILL fields."
+    }
+  },
+
+  "additionalProperties": false,
+
+  "examples": [
+    {
+      "name": "python-code-review",
+      "description": "Use when the user wants to review Python code for quality, security, style, or performance. Invoke for code inspection, bug hunting, refactoring suggestions.",
+      "metadata": {
+        "updated": "2026-07-09",
+        "type": "prompt",
+        "whenToUse": "当用户需要审查 Python 代码质量、安全漏洞、风格或性能时"
+      }
+    },
+    {
+      "name": "ur-skill-cn",
+      "description": "Use whenever the user wants to create, design, standardize, or package a SKILL.md file, AI agent skill, or structured system prompt. Invoke even if they don't explicitly say 'SKILL'. Chinese version.",
+      "license": "Apache-2.0",
+      "compatibility": "Designed for Trae IDE and any Agent Skills compatible platform. Requires Python 3.12+ (for validate_skill.py).",
+      "allowed-tools": "Read Write Grep Glob RunCommand WebSearch WebFetch Skill Task AskUserQuestion TodoWrite",
+      "metadata": {
+        "updated": "2026-07-09",
+        "type": "prompt",
+        "whenToUse": "用户说'帮我生成一个skill'、'写一个skill'、'优化一下这个skill'等任何形式的skill生成或优化请求时自动激活"
+      }
+    }
+  ]
+}

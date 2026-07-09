@@ -103,10 +103,10 @@ ur-skill 设计 SKILL 时，参考以下示例模板（详细生成流程见 ur-
 ---
 name: python-code-inspector
 description: "Use when reviewing Python code for quality issues..."
-type: prompt
-whenToUse: 当需要审查Python代码质量时
 metadata:
   updated: 2026-07-09
+  type: prompt
+  whenToUse: 当需要审查Python代码质量时
 ---
 
 # Python 代码检查器

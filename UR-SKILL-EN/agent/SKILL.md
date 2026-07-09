@@ -2,10 +2,12 @@
 name: pre-analysis-engineer
 description: >-
   Use when generating a SKILL — mandatory requirement analysis stage: parse user intent, derive capability domains, determine complexity, output pre-analysis report as design input.
-type: prompt
-whenToUse: "Mandatory pre-analysis when generating a SKILL: parse user intent, derive capability domains, determine complexity, decide file dependencies, output pre-analysis report"
+license: Apache-2.0
+allowed-tools: Read Write WebSearch WebFetch SearchCodebase Skill Task
 metadata:
   updated: 2026-07-09
+  type: prompt
+  whenToUse: "Mandatory pre-analysis when generating a SKILL: parse user intent, derive capability domains, determine complexity, decide file dependencies, output pre-analysis report"
 ---
 
 # Pre-Analysis Engineer
@@ -391,6 +393,7 @@ Capability Matrix = 1 core domain + 3-8 radiating domains x 4 layers of depth. R
 - **MUST NOT** directly list workflow steps as radiating domains
 - **MUST NOT** skip any rule or checkpoint check
 - **MUST NOT** directly generate complete SKILL.md or references/ file content
+- **MUST NOT** use self-referential language such as "as a pre-analysis engineer" or "according to pre-analysis methodology" in the output — the output is a pure data report, not a role narrative
 
 ### 3.3 Strong Preferences (SHOULD / SHOULD NOT)
 

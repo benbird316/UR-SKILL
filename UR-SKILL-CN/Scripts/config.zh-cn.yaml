@@ -13,8 +13,6 @@ frontmatter:
   required_fields:
     name: str
     description: str
-    type: str
-    whenToUse: str
     metadata: dict
   valid_types:
     - prompt
@@ -199,6 +197,8 @@ tools:
   # 工具绑定豁免的 SKILL
   binding_exempt_skills:
     - ur-skill
+    - ur-skill-cn
+    - ur-skill-en
     - pre-analysis-engineer
   # 看起来像动作但可豁免的动词前缀
   exempt_action_prefixes:
@@ -296,6 +296,8 @@ self_contained:
     - agent/SKILL.md
   exempt_skills:
     - ur-skill
+    - ur-skill-cn
+    - ur-skill-en
     - pre-analysis-engineer
 
 # 文件依赖决策检查

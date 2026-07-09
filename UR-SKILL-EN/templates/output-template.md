@@ -11,11 +11,14 @@
 ```yaml
 ---
 name: {kebab-case-name}
-description: "Use when [trigger condition]. [Capability description]"
-type: prompt
-whenToUse: When [specific scenario]
+description: "Use when [trigger condition]. [capability description]"
+license: {license, e.g. Apache-2.0}
+compatibility: {compatibility note, if needed}
+allowed-tools: {space-separated tool list, if needed}
 metadata:
   updated: {YYYY-MM-DD}
+  type: prompt
+  whenToUse: When [specific scenario]
 ---
 
 # {SKILL Name}
@@ -129,11 +132,14 @@ metadata:
 ```yaml
 ---
 name: {kebab-case-name}
-description: "Use when [trigger condition]. [Capability description]"
-type: prompt
-whenToUse: When [specific scenario]
+description: "Use when [trigger condition]. [capability description]"
+license: {license, e.g. Apache-2.0}
+compatibility: {compatibility note, if needed}
+allowed-tools: {space-separated tool list, if needed}
 metadata:
   updated: {YYYY-MM-DD}
+  type: prompt
+  whenToUse: When [specific scenario]
 ---
 
 # {SKILL Name}
@@ -233,11 +239,14 @@ Hard constraints + Hard prohibitions + Strong preferences + Optional + Risk boun
 ```yaml
 ---
 name: {kebab-case-name}
-description: "Use when [trigger condition]. [Capability description]"
-type: prompt
-whenToUse: When [specific scenario]
+description: "Use when [trigger condition]. [capability description]"
+license: {license, e.g. Apache-2.0}
+compatibility: {compatibility note, if needed}
+allowed-tools: {space-separated tool list, if needed}
 metadata:
   updated: {YYYY-MM-DD}
+  type: prompt
+  whenToUse: When [specific scenario]
 ---
 
 # {SKILL Name}
@@ -351,7 +360,7 @@ Hard constraints + Hard prohibitions + Strong preferences + Optional + Risk boun
 ## 4. Output Constraints (General)
 
 - Body MUST be < 500 lines
-- YAML frontmatter MUST be complete (name, description, type, whenToUse, metadata.updated)
+- YAML frontmatter MUST be complete (name, description, metadata.updated, metadata.type, metadata.whenToUse)
 - description strongly recommended to begin with "Use when..."
 - MUST NOT inline references/ content directly into body
 - Directory names use plural form: references/, scripts/, assets/

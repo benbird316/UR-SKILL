@@ -24,11 +24,16 @@ def validate(ctx: SkillContext, config: dict[str, Any]) -> list[Finding]:
 
 
 def _check_ref_exists(rel_path: str, skill_dir: Path) -> bool:
-    if (skill_dir / rel_path).exists():
-        return True
-    if skill_dir.parent and (skill_dir.parent / rel_path).exists():
-        return True
-    return False
+    """检查引用文件是否存在，防止路径穿越。
+
+    使用 resolve() + relative_to() 确保目标路径不逃逸 skill_dir。
+    """
+    try:
+        target = (skill_dir / rel_path).resolve()
+        target.relative_to(skill_dir.resolve())
+    except ValueError:
+        return False  # 穿越目录的引用一律视为不存在
+    return target.exists()
 
 
 def _validate_references(ctx: SkillContext, config: dict[str, Any]) -> list[Finding]:
@@ -170,12 +175,29 @@ _UR_SKILL_FILES: set[str] | None = None
 
 
 def _discover_ur_skill_files(ctx: SkillContext, config: dict[str, Any]) -> set[str]:
+    """发现 UR-SKILL 内部文件，用于泄漏检测。
+
+    内置路径沙箱：解析后的 ur_skill_root 必须在 Scripts 目录的父级仓库根目录内。
+    """
     script_dir = ctx.path.resolve().parent
-    ur_skill_root = script_dir.parent
+    ur_skill_root = script_dir.resolve()
+
+    # 沙箱约束：ur_skill_root 不能逃逸项目根目录
+    project_root = Path(__file__).resolve().parent.parent.resolve()  # UR-SKILL-CN/ or UR-SKILL-EN/
+    try:
+        ur_skill_root.relative_to(project_root)
+    except ValueError:
+        raise ValueError(
+            f"Security: --skill-dir resolves outside project root. "
+            f"skill_dir={script_dir}, ur_skill_root={ur_skill_root}, project_root={project_root}"
+        )
+
     files: set[str] = set()
     if not ur_skill_root.exists():
         return files
     for f in ur_skill_root.rglob("*"):
+        if f.is_symlink():
+            continue
         if f.is_file() and not f.name.startswith("."):
             rel = f.relative_to(ur_skill_root).as_posix()
             prefixes = config.get("self_contained", {}).get("forbidden_prefixes", [])

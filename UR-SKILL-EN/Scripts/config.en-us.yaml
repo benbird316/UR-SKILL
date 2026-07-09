@@ -13,8 +13,6 @@ frontmatter:
   required_fields:
     name: str
     description: str
-    type: str
-    whenToUse: str
     metadata: dict
   valid_types:
     - prompt
@@ -108,7 +106,7 @@ rules:
 
 placeholders:
   general_patterns:
-    - '\[(?!cognitive operation\])(?![^\]]*\]\()[^\]]*\]'
+    - '\[(?!cognitive operation\]|Cognitive Op\])(?![^\]]*\]\()[^\]]*\]'
     - '\{.*?\}'
     - 'TODO|FIXME|XXX|HACK'
   unresolved_patterns:
@@ -189,6 +187,8 @@ tools:
     - GetDiagnostics
   binding_exempt_skills:
     - ur-skill
+    - ur-skill-cn
+    - ur-skill-en
     - pre-analysis-engineer
   exempt_action_prefixes:
     - read
@@ -278,6 +278,8 @@ self_contained:
     - agent/SKILL.md
   exempt_skills:
     - ur-skill
+    - ur-skill-cn
+    - ur-skill-en
     - pre-analysis-engineer
 
 file_dependency:

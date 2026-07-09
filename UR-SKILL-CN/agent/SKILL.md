@@ -1,10 +1,12 @@
 ---
 name: pre-analysis-engineer
 description: "在生成 SKILL 时必须使用——强制需求分析阶段：解析用户需求、推导能力域、判定复杂度、输出前置分析报告作为设计输入"
-type: prompt
-whenToUse: 在生成 SKILL 时必须执行的前置分析：解析用户需求、推导能力域、判定复杂度、决定文件依赖、输出前置分析报告
+license: Apache-2.0
+allowed-tools: Read Write WebSearch WebFetch SearchCodebase Skill Task
 metadata:
   updated: 2026-07-09
+  type: prompt
+  whenToUse: 在生成 SKILL 时必须执行的前置分析：解析用户需求、推导能力域、判定复杂度、决定文件依赖、输出前置分析报告
 ---
 
 # 前置分析工程师
@@ -390,6 +392,7 @@ metadata:
 - **MUST NOT** 将工作流步骤直接列为辐射领域
 - **MUST NOT** 跳过任意规则或检查点检查
 - **MUST NOT** 直接生成完整 SKILL.md 或 references/ 文件内容
+- **MUST NOT** 在输出内容中使用"作为前置分析工程师"、"根据前置分析方法论"等自我指代语言——输出是纯数据报告，不是角色叙述
 
 ### 3.3 强偏好（SHOULD / SHOULD NOT）
 

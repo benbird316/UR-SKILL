@@ -12,10 +12,13 @@
 ---
 name: {kebab-case-name}
 description: "Use when [触发条件]. [能力说明]"
-type: prompt
-whenToUse: 当[具体场景]时
+license: {许可证，如 Apache-2.0}
+compatibility: {兼容性说明，如需要}
+allowed-tools: {空格分隔的工具列表，如需要}
 metadata:
   updated: {YYYY-MM-DD}
+  type: prompt
+  whenToUse: 当[具体场景]时
 ---
 
 # {SKILL名称}
@@ -130,10 +133,13 @@ metadata:
 ---
 name: {kebab-case-name}
 description: "Use when [触发条件]. [能力说明]"
-type: prompt
-whenToUse: 当[具体场景]时
+license: {许可证，如 Apache-2.0}
+compatibility: {兼容性说明，如需要}
+allowed-tools: {空格分隔的工具列表，如需要}
 metadata:
   updated: {YYYY-MM-DD}
+  type: prompt
+  whenToUse: 当[具体场景]时
 ---
 
 # {SKILL名称}
@@ -234,10 +240,13 @@ metadata:
 ---
 name: {kebab-case-name}
 description: "Use when [触发条件]. [能力说明]"
-type: prompt
-whenToUse: 当[具体场景]时
+license: {许可证，如 Apache-2.0}
+compatibility: {兼容性说明，如需要}
+allowed-tools: {空格分隔的工具列表，如需要}
 metadata:
   updated: {YYYY-MM-DD}
+  type: prompt
+  whenToUse: 当[具体场景]时
 ---
 
 # {SKILL名称}
@@ -351,7 +360,7 @@ metadata:
 ## 4. 输出约束（通用）
 
 - body 必须 < 500 行
-- YAML frontmatter 必须完整（name, description, type, whenToUse, metadata.updated）
+- YAML frontmatter 必须完整（name, description, metadata.updated, metadata.type, metadata.whenToUse）
 - description 强烈推荐以 "Use when..." 开头
 - 不得将 references/ 内容直接填充到 body 中
 - 目录名使用复数形式：references/、scripts/、assets/

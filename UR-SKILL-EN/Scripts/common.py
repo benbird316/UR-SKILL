@@ -105,14 +105,28 @@ class Report:
         return json.dumps([f.to_dict() for f in self.findings], ensure_ascii=False, indent=2)
 
     def to_text(self) -> str:
-        if not self.findings:
-            return self.config.get("messages", {}).get("validation_passed", "Validation passed")
+        msgs = self.config.get("messages", {})
+        errors_warnings = [f for f in self.findings if f.severity in ("error", "warning")]
+        infos = [f for f in self.findings if f.severity == "info"]
 
-        lines = [self.config.get("messages", {}).get("validation_failed").format(count=len(self.findings)), ""]
-        for idx, finding in enumerate(self.findings, 1):
+        if not errors_warnings and not infos:
+            return msgs.get("validation_passed", "Validation passed")
+
+        lines = []
+        if errors_warnings:
+            lines.append(msgs.get("validation_failed", "Validation failed").format(count=len(errors_warnings)))
+            lines.append("")
+        for idx, finding in enumerate(errors_warnings, 1):
             prefix = f"[{finding.severity.upper()}]"
             line_info = f" (L{finding.line})" if finding.line else ""
             lines.append(f"{idx}. {prefix}{line_info} {finding.message}")
+
+        if infos:
+            if errors_warnings:
+                lines.append("")
+            for finding in infos:
+                lines.append(f"[{finding.severity.upper()}] {finding.message}")
+
         return "\n".join(lines)
 
 

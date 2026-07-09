@@ -103,10 +103,10 @@ User requirement: Need a SKILL to check Python code quality
 ---
 name: python-code-inspector
 description: "Use when reviewing Python code for quality issues..."
-type: prompt
-whenToUse: Use when reviewing Python code quality
 metadata:
   updated: 2026-07-09
+  type: prompt
+  whenToUse: Use when reviewing Python code quality
 ---
 
 # Python Code Inspector

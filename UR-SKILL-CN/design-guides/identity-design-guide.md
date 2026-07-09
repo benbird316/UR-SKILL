@@ -304,10 +304,12 @@ description: >-
 
 ```yaml
 # 好
-whenToUse: 当用户需要代码安全审查、OWASP 漏洞检测或认证逻辑审计时
+metadata:
+  whenToUse: 当用户需要代码安全审查、OWASP 漏洞检测或认证逻辑审计时
 
 # 差 — 与 description 完全重复
-whenToUse: Use when reviewing code for security.
+metadata:
+  whenToUse: Use when reviewing code for security.
 ```
 
 ### 10.4 平台适配因素

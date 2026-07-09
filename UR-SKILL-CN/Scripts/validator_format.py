@@ -5,10 +5,19 @@
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Any
 
 from common import Finding, SkillContext, strip_code_blocks
+
+# jsonschema 为可选依赖，未安装时跳过 JSON Schema 校验
+try:
+    import jsonschema  # noqa: F401
+    _HAS_JSONSCHEMA = True
+except ImportError:
+    _HAS_JSONSCHEMA = False
 
 
 def validate(ctx: SkillContext, config: dict[str, Any]) -> list[Finding]:
@@ -17,6 +26,7 @@ def validate(ctx: SkillContext, config: dict[str, Any]) -> list[Finding]:
     findings.extend(_validate_body(ctx, config))
     findings.extend(_validate_unresolved_placeholders(ctx, config))
     findings.extend(_validate_deprecated_tools(ctx, config))
+    findings.extend(_validate_json_schema(ctx))
     return findings
 
 
@@ -54,8 +64,9 @@ def _validate_frontmatter(ctx: SkillContext, config: dict[str, Any]) -> list[Fin
             findings.append(Finding("description-length", msgs["description_length"].format(length=len(desc), min=min_desc, max=max_desc), "error"))
 
     valid_types = set(fm_cfg.get("valid_types", []))
-    if "type" in fm and fm["type"] not in valid_types:
-        findings.append(Finding("invalid-type", msgs["type_invalid"].format(type=fm["type"], valid_types=valid_types), "error"))
+    fm_type = fm.get("type") or (fm.get("metadata") or {}).get("type")
+    if fm_type and fm_type not in valid_types:
+        findings.append(Finding("invalid-type", msgs["type_invalid"].format(type=fm_type, valid_types=valid_types), "error"))
 
     if isinstance(fm.get("metadata"), dict):
         updated = fm["metadata"].get("updated")
@@ -143,3 +154,62 @@ def _validate_deprecated_tools(ctx: SkillContext, config: dict[str, Any]) -> lis
         if old in ctx.text:
             findings.append(Finding("deprecated-tool", msgs["deprecated_tool"].format(old=old, new=new), "error"))
     return findings
+
+
+def _validate_json_schema(ctx: SkillContext) -> list[Finding]:
+    """可选的 JSON Schema 校验。依赖 jsonschema 库，未安装时静默跳过。"""
+    if not _HAS_JSONSCHEMA:
+        return []
+
+    # 查找 skill-schema.json：优先 skill_dir/templates/，其次 scripts_dir/../templates/
+    skill_dir = ctx.path.parent if ctx.path else None
+    schema_paths = []
+    if skill_dir:
+        schema_paths.append(skill_dir / "templates" / "skill-schema.json")
+    schema_paths.append(Path(__file__).resolve().parent.parent / "templates" / "skill-schema.json")
+
+    schema = None
+    for p in schema_paths:
+        if p.exists():
+            schema = json.loads(p.read_text(encoding="utf-8"))
+            break
+
+    if schema is None:
+        return [Finding("schema-missing", "JSON Schema file skill-schema.json not found in templates/", "warning")]
+
+    # YAML frontmatter 已经是 dict，但 YAML 会将日期解析为 datetime.date，
+    # 需要统一转为字符串后再校验
+    frontmatter = _normalize_for_schema(ctx.frontmatter)
+    validator = jsonschema.Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(frontmatter), key=lambda e: e.path)
+
+    findings: list[Finding] = []
+    for err in errors:
+        path = " → ".join(str(p) for p in err.path) if err.path else "(root)"
+        findings.append(Finding(
+            "schema-violation",
+            f"[{path}] {err.message}",
+            "error",
+        ))
+
+    if not findings:
+        findings.append(Finding("schema-valid", "JSON Schema validation passed", "info"))
+
+    return findings
+
+
+def _normalize_for_schema(data: Any) -> Any:
+    """将 YAML 解析产生的非字符串标量（如 date）转为字符串，使其通过 JSON Schema 校验。"""
+    import datetime as dt
+
+    if isinstance(data, dict):
+        return {k: _normalize_for_schema(v) for k, v in data.items()}
+    if isinstance(data, list):
+        return [_normalize_for_schema(item) for item in data]
+    if isinstance(data, (dt.date, dt.datetime)):
+        return data.isoformat()
+    if isinstance(data, (int, float, bool)):
+        return data
+    if isinstance(data, str):
+        return data
+    return str(data)

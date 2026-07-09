@@ -1,7 +1,7 @@
-"""运行时层校验器。
+"""Runtime layer validator.
 
-负责引用文件存在性、工具绑定、输出规格、文件依赖决策、
-UR-SKILL 文件泄漏检测。
+Validates reference file existence, tool binding, output spec,
+file dependency decisions, and UR-SKILL file leak detection.
 """
 
 from __future__ import annotations
@@ -24,11 +24,16 @@ def validate(ctx: SkillContext, config: dict[str, Any]) -> list[Finding]:
 
 
 def _check_ref_exists(rel_path: str, skill_dir: Path) -> bool:
-    if (skill_dir / rel_path).exists():
-        return True
-    if skill_dir.parent and (skill_dir.parent / rel_path).exists():
-        return True
-    return False
+    """Check if a referenced file exists, preventing path traversal.
+
+    Uses resolve() + relative_to() to ensure the target does not escape skill_dir.
+    """
+    try:
+        target = (skill_dir / rel_path).resolve()
+        target.relative_to(skill_dir.resolve())
+    except ValueError:
+        return False  # path traversal — treat as nonexistent
+    return target.exists()
 
 
 def _validate_references(ctx: SkillContext, config: dict[str, Any]) -> list[Finding]:
@@ -170,12 +175,30 @@ _UR_SKILL_FILES: set[str] | None = None
 
 
 def _discover_ur_skill_files(ctx: SkillContext, config: dict[str, Any]) -> set[str]:
+    """Discover UR-SKILL internal files for leak detection.
+
+    Built-in path sandbox: resolved ur_skill_root must be inside the repo root
+    (parent of the Scripts directory).
+    """
     script_dir = ctx.path.resolve().parent
-    ur_skill_root = script_dir.parent
+    ur_skill_root = script_dir.resolve()
+
+    # Sandbox: ur_skill_root must not escape the project root
+    project_root = Path(__file__).resolve().parent.parent.resolve()  # UR-SKILL-CN/ or UR-SKILL-EN/
+    try:
+        ur_skill_root.relative_to(project_root)
+    except ValueError:
+        raise ValueError(
+            f"Security: --skill-dir resolves outside project root. "
+            f"skill_dir={script_dir}, ur_skill_root={ur_skill_root}, project_root={project_root}"
+        )
+
     files: set[str] = set()
     if not ur_skill_root.exists():
         return files
     for f in ur_skill_root.rglob("*"):
+        if f.is_symlink():
+            continue
         if f.is_file() and not f.name.startswith("."):
             rel = f.relative_to(ur_skill_root).as_posix()
             prefixes = config.get("self_contained", {}).get("forbidden_prefixes", [])

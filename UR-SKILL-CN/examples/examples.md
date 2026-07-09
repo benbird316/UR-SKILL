@@ -18,10 +18,10 @@
 ---
 name: pythonize-name
 description: "Use when converting a natural language description into a valid Python function or variable name. Invoke for naming helpers, refactoring suggestions, or API method naming."
-type: prompt
-whenToUse: 当用户想把自然语言描述转成合法的 Python 函数名或变量名时
 metadata:
   updated: 2026-07-09
+  type: prompt
+  whenToUse: 当用户想把自然语言描述转成合法的 Python 函数名或变量名时
 ---
 ```
 

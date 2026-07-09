@@ -310,10 +310,12 @@ description: >-
 
 ```yaml
 # Good
-whenToUse: 当用户需要代码安全审查、OWASP 漏洞检测或认证逻辑审计时
+metadata:
+  whenToUse: When the user needs code security review, OWASP vulnerability detection, or authentication logic auditing
 
 # Bad -- completely duplicates description
-whenToUse: Use when reviewing code for security.
+metadata:
+  whenToUse: Use when reviewing code for security.
 ```
 
 ### 10.4 Platform Adaptation Factors

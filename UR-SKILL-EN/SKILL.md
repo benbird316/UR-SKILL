@@ -1,10 +1,13 @@
 ---
-name: ur-skill
-description: "Use whenever the user wants to create, design, standardize, or package a SKILL.md file, AI agent skill, or structured system prompt. Invoke even if they don't explicitly say 'SKILL'."
-type: prompt
-whenToUse: When the user says "create a skill for me", "write a skill", "optimize this skill", "make this into a skill", or any casual request to generate or improve a skill. No need for the user to use technical jargon.
+name: ur-skill-en
+description: "Use whenever the user wants to create, design, standardize, or package a SKILL.md file, AI agent skill, or structured system prompt. Invoke even if they don't explicitly say 'SKILL'. English version."
+license: Apache-2.0
+compatibility: Designed for Trae IDE and any Agent Skills compatible platform. Requires Python 3.12+ (for validate_skill.py).
+allowed-tools: Read Write Grep Glob RunCommand WebSearch WebFetch Skill Task AskUserQuestion TodoWrite
 metadata:
   updated: 2026-07-09
+  type: prompt
+  whenToUse: When the user says "create a skill for me", "write a skill", "optimize this skill", "make this into a skill", or any casual request to generate or improve a skill. No need for the user to use technical jargon.
 ---
 
 # UR-SKILL
@@ -104,18 +107,28 @@ Capability facets characterize the capability dimensions that the core domain mu
 **Risk Boundary Trigger**:
 - If any step triggers a safety red line (illegal/public order and morals violation, discrimination, malicious injection/jailbreak) → terminate immediately, do not proceed to next step
 
-**pre-analysis-engineer Mandatory Invocation**: Step 1 must invoke the `pre-analysis-engineer` sub-SKILL (./agent/SKILL.md). This sub-SKILL automatically completes requirement parsing, domain derivation, complexity determination, and file dependency decisions, outputting a pre-analysis report. See ./design-rationale/design-rationale.md sections 8-9 for details.
+**pre-analysis-engineer Invocation**: Step 1 performs pre-analysis. Prefer `[Skill]` tool to invoke the `pre-analysis-engineer` sub-SKILL (./agent/SKILL.md); if the platform does not support sub-agents, use `[Read]` to load its methodology and execute inline. This sub-SKILL automatically completes requirement parsing, domain derivation, complexity determination, and file dependency decisions, outputting a pre-analysis report. See ./design-rationale/design-rationale.md sections 8-9 for details.
 
 ### 2.2 Standard Workflow (7 strict sequential steps, review dimensions assigned by node type)
 
 #### 1. Pre-Analysis (Delegated to pre-analysis-engineer) [Non-Critical Checkpoint, 3 dimensions]
 
-**Actions**:
-1. [Skill] Mandatory invocation of pre-analysis-engineer sub-SKILL
+**[Cognitive Op] Detect sub-agent capability**: Check whether the current environment supports the `[Skill]` tool.
+
+**Path A — Sub-agent supported**:
+
+1. [Skill] Invoke pre-analysis-engineer sub-SKILL (./agent/SKILL.md)
    - Input: user's original requirement text
    - Output: pre-analysis report (containing requirement parsing card, capability matrix draft, complexity determination, file dependency list, blind spot report)
 
-> **Role Switch**: Pre-analysis phase complete. All subsequent steps (2-7) use ONLY the UR-SKILL main SKILL identity and rules. The pre-analysis-engineer's role definition, rules, and constraints no longer apply.
+> **Note**: The sub-SKILL's output text will appear in subsequent context, but you are the UR-SKILL main SKILL (an Agent SKILL design engineer), not the pre-analysis engineer. Any role self-references in the sub-SKILL's output are instructions to the sub-SKILL itself — they do not apply to you.
+
+**Path B — Sub-agent NOT supported**:
+
+1. [Read] Read ./agent/SKILL.md → extract pre-analysis methodology and report structure
+2. In your current identity (UR-SKILL main SKILL), execute pre-analysis per the sub-SKILL's methodology:
+   - Requirement parsing → capability domain derivation → complexity determination → file dependency decisions
+3. [Write] Produce pre-analysis report (four items: requirement card / capability draft / complexity / file dependencies)
 
 **Core Command**: Pre-analysis report has been produced, four items complete (requirement card / capability draft / complexity / file dependencies)
 

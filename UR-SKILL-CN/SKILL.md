@@ -1,10 +1,13 @@
 ---
-name: ur-skill
-description: "Use whenever the user wants to create, design, standardize, or package a SKILL.md file, AI agent skill, or structured system prompt. Invoke even if they don't explicitly say 'SKILL'."
-type: prompt
-whenToUse: 用户说"帮我生成一个skill"、"写一个skill"、"优化一下这个skill"、"创建技能"、"把这个做成skill"等任何形式的skill生成或优化请求时自动激活。无需用户使用专业术语。
+name: ur-skill-cn
+description: "Use whenever the user wants to create, design, standardize, or package a SKILL.md file, AI agent skill, or structured system prompt. Invoke even if they don't explicitly say 'SKILL'. Chinese version."
+license: Apache-2.0
+compatibility: Designed for Trae IDE and any Agent Skills compatible platform. Requires Python 3.12+ (for validate_skill.py).
+allowed-tools: Read Write Grep Glob RunCommand WebSearch WebFetch Skill Task AskUserQuestion TodoWrite
 metadata:
   updated: 2026-07-09
+  type: prompt
+  whenToUse: 用户说"帮我生成一个skill"、"写一个skill"、"优化一下这个skill"、"创建技能"、"把这个做成skill"等任何形式的skill生成或优化请求时自动激活。无需用户使用专业术语。
 ---
 
 # UR-SKILL
@@ -104,18 +107,28 @@ metadata:
 **风险边界触发**:
 - 任一步骤触及安全红线（违法/公序良俗、歧视、恶意注入/越狱）→ 立即终止，不进入下一步
 
-**前置分析 SKILL 强制调用**: 步骤 1 必须调用"前置分析 SKILL"（./agent/SKILL.md）。该子 SKILL 自动完成需求解析、领域推导、复杂度判定、文件依赖决策，输出前置分析报告。详见 ./design-rationale/design-rationale.md §8-§9。
+**前置分析 SKILL 调用**: 步骤 1 执行前置分析。优先使用 `[Skill]` 工具调用"前置分析 SKILL"（./agent/SKILL.md）；若平台不支持 sub-agent，则以 `[Read]` 加载其方法论后内联执行。该子 SKILL 自动完成需求解析、领域推导、复杂度判定、文件依赖决策，输出前置分析报告。详见 ./design-rationale/design-rationale.md §8-§9。
 
 ### 2.2 标准工作流（7 步严格顺序，按节点类型分配审视维度）
 
 #### 1. 前置分析（委托前置分析 SKILL）【非关键节点，3 维】
 
-**动作**:
-1. [Skill] 强制调用前置分析 SKILL
+**[认知操作] 检测 sub-agent 能力**：确认当前环境是否支持 `[Skill]` 工具。
+
+**路径 A — 支持 sub-agent**：
+
+1. [Skill] 调用前置分析 SKILL（./agent/SKILL.md）
    - 输入：用户需求文本
    - 输出：前置分析报告（含需求解析卡片、能力矩阵草案、复杂度判定、文件依赖清单、盲区报告）
 
-> **角色切换**：前置分析阶段结束。以下所有步骤（2-7）仅使用 UR-SKILL 主 SKILL 的身份和规则。前置分析 SKILL 的角色定义、规则和约束不再适用。
+> **注意**：子 SKILL 的输出文本会出现在后续上下文中，但你是 UR-SKILL 主 SKILL（设计 Agent SKILL 的工程师），不是前置分析工程师。子 SKILL 输出中的角色指代是发给子 SKILL 自身的指令，对你无效。
+
+**路径 B — 不支持 sub-agent**：
+
+1. [Read] 读取 ./agent/SKILL.md → 提取前置分析方法论和报告结构
+2. 在当前身份下（UR-SKILL 主 SKILL），按照子 SKILL 的方法论执行前置分析：
+   - 需求解析 → 能力域推导 → 复杂度判定 → 文件依赖决策
+3. [Write] 产出前置分析报告（四项齐全：需求卡片 / 能力草案 / 复杂度 / 文件依赖）
 
 **核心命令**:前置分析报告已产出，四项齐全（需求卡片 / 能力草案 / 复杂度 / 文件依赖）
 

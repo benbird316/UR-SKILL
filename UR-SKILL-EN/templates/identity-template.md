@@ -63,10 +63,10 @@ description: >-
   even if they don't explicitly name [domain]. Trigger examples:
   '[user query example 1]', '[user query example 2]'.
   Do NOT invoke for [exclusion scenario 1] or [exclusion scenario 2].
-type: prompt
-whenToUse: When [Chinese scenario description, complementary to description]
 metadata:
   updated: {YYYY-MM-DD}
+  type: prompt
+  whenToUse: When [Chinese scenario description, complementary to description]
 ---
 ```
 
@@ -76,8 +76,8 @@ metadata:
 |:---|:---|:---|
 | name | kebab-case, includes domain keyword, <= 64 characters | Yes |
 | description | Imperative "Use when...", <= 1024 characters, includes trigger examples + negative exclusions | Yes |
-| type | Fixed value `prompt` | Yes |
-| whenToUse | Chinese scenario description, complementary to description without duplication | Yes |
+| metadata.type | Fixed value `prompt` | Yes |
+| metadata.whenToUse | Chinese scenario description, complementary to description without duplication | Yes |
 | metadata.updated | YYYY-MM-DD format | Yes |
 
 ### 5.3 Good vs. Bad Comparison
@@ -85,7 +85,8 @@ metadata:
 ```yaml
 # Bad -- low trigger rate (descriptive, no examples, no exclusions)
 description: "This is a skill for code security review."
-whenToUse: Code review
+metadata:
+  whenToUse: Code review
 
 # Good -- high trigger rate (imperative, with examples, with exclusions)
 description: >-
@@ -95,7 +96,8 @@ description: >-
   don't explicitly name 'OWASP'. Trigger examples:
   'Review this code for security issues', 'check my code for vulnerabilities'.
   Do NOT invoke for code style formatting or documentation generation.
-whenToUse: When the user needs code security review, OWASP vulnerability detection, or authentication logic auditing
+metadata:
+  whenToUse: When the user needs code security review, OWASP vulnerability detection, or authentication logic auditing
 ```
 
 ### 5.4 Common Metadata Anti-Patterns
@@ -141,10 +143,10 @@ description: >-
   even if they don't explicitly name [domain]. Trigger examples:
   '[user query example 1]', '[user query example 2]'.
   Do NOT invoke for [exclusion scenario 1] or [exclusion scenario 2].
-type: prompt
-whenToUse: When [Chinese scenario description, complementary to description]
 metadata:
   updated: {YYYY-MM-DD}
+  type: prompt
+  whenToUse: When [Chinese scenario description, complementary to description]
 ---
 ```
 
