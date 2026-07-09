@@ -64,7 +64,7 @@ It's not another prompt template. It's a **factory**: a 7-step verified workflow
 | Role | How to Use UR-SKILL |
 |:---|:---|
 | **AI Agent Developer** | Load UR-SKILL in Claude Code / Cursor / Trae, describe your needs, get a production-grade SKILL |
-| **Prompt Engineer** | Audit existing system prompts with the methodology — identify blind spots, anti-patterns, boundary abuse |
+| **Prompt Engineer** | Audit existing system prompts with the methodology — identify blind spots, anti-patterns, boundary abuse. Paste any SKILL from Cursor/Claude Code to migrate it into the UR-SKILL system |
 | **Open Source Maintainer** | Generate standardized AI Agent interaction entry points for your project, lowering AI-driven contribution barriers |
 | **Tech Lead** | Establish team-wide SKILL quality standards with CI-automated validation gates |
 
@@ -97,13 +97,24 @@ python install.py                     # interactive language selection
 python install.py --lang en-us --target claude-code  # specific platform
 ```
 
-### Generate a New SKILL
+### Generate, Optimize, or Convert a SKILL
 
-Trigger UR-SKILL in your AI Agent with a natural-language request:
+UR-SKILL's pre-analysis engine auto-detects your intent and routes to one of **four modes**:
 
-> "I need a code review SKILL specialized in Python security vulnerability detection"
+| Mode | Trigger | What Happens |
+|:---|:---|:---|
+| **A — Generate from Scratch** | `"I need a code review SKILL for Python security"` | Full 7-step workflow: research the profession, design capability matrix, produce complete SKILL package |
+| **B1 — External SKILL Optimization** | Paste a SKILL from Cursor / Claude Code / any platform | Decompile the existing SKILL, gap-analyze against UR-SKILL standards, rebuild into the UR-SKILL system with capability matrix + 6-facet review + rules |
+| **B2 — Internal SKILL Optimization** | `"Optimize my tech-doc-optimizer SKILL: improve anti-pattern detection"` | 6-facet audit, anti-pattern scan, rule reinforcement — upgrades an existing UR-SKILL SKILL without rebuilding from scratch |
+| **C — Knowledge Extraction** | `"From this OpenAPI spec, generate an API integration SKILL"` | Read knowledge source → extract domain facts → build a SKILL that encodes that domain knowledge |
 
-UR-SKILL runs pre-analysis (complexity assessment + capability domain inference), then produces a complete SKILL package through the verified workflow.
+**No need to tell UR-SKILL which mode to use** — the pre-analysis engine detects YAML frontmatter, internal UR-SKILL markers, or knowledge-source patterns and routes automatically.
+
+> Example (Mode A): *"I need a code review SKILL specialized in Python security vulnerability detection"*
+>
+> Example (Mode B1): *"Here's a Cursor rule for code review, optimize it into a UR-SKILL: `[paste SKILL content]`"*
+>
+> Example (Mode C): *"From these PostgreSQL performance tuning docs, generate a DBA review SKILL"*
 
 ### Validate Generated SKILLs
 
