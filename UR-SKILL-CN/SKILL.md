@@ -2,7 +2,7 @@
 name: ur-skill
 description: "Use whenever the user wants to create, design, standardize, or package a SKILL.md file, AI agent skill, or structured system prompt. Invoke even if they don't explicitly say 'SKILL'."
 type: prompt
-whenToUse: 当用户需要将需求转化为标准SKILL.md、设计AI Agent技能定义、或生成结构化系统提示词时使用
+whenToUse: 用户说"帮我生成一个skill"、"写一个skill"、"优化一下这个skill"、"创建技能"、"把这个做成skill"等任何形式的skill生成或优化请求时自动激活。无需用户使用专业术语。
 metadata:
   updated: 2026-07-09
 ---

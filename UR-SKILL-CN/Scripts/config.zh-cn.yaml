@@ -1,0 +1,370 @@
+---
+lang: zh-cn
+meta:
+  title: UR-SKILL 校验规则
+  version: "2.0"
+
+thresholds:
+  max_body_lines: 500
+  max_description_chars: 200
+  min_description_chars: 50
+
+frontmatter:
+  required_fields:
+    name: str
+    description: str
+    type: str
+    whenToUse: str
+    metadata: dict
+  valid_types:
+    - prompt
+    - tool
+    - hybrid
+  metadata:
+    updated_required: true
+    updated_format: "%Y-%m-%d"
+
+# 工作流步骤配置
+workflow:
+  step_heading_pattern: '^#{2,4}\s*\d+\.\s*(\S+?)\s*[（(].*?[）)].*?维.*$'
+  step_names:
+    - 解析
+    - 前置分析
+    - 调研
+    - 架构
+    - 执行
+    - 交付
+    - 校验
+    - 验证
+  expected_checks:
+    解析: 3
+    前置分析: 4
+    调研: 7
+    架构: 7
+    执行: 4
+    交付: 4
+    校验: 7
+    验证: 8
+  critical_steps:
+    - 调研
+    - 架构
+    - 校验
+    - 验证
+  required_dimensions:
+    - 目标对齐
+    - 事实锚定
+  critical_only_dimensions:
+    - 方向校准
+    - 对抗验证
+    - 盲区识别
+    - 影响推演
+
+rules:
+  rules_heading_pattern: '^#{2,3}\s*(?:\d+\.?\s*)?(?:核心)?规则.*$'
+  rfc2119_keywords:
+    - MUST
+    - MUST NOT
+    - SHOULD
+    - SHOULD NOT
+    - MAY
+
+  # 风险边界声明关键词（仅对 UR-SKILL 自身检查）
+  risk_boundaries:
+    - 违法
+    - 歧视
+    - 恶意注入
+
+  # 风险边界滥用检测关键词
+  risk_boundary_abuse_keywords:
+    - 不负责
+    - 不属于
+    - 不在.*范围
+    - 不管
+    - 不承担
+    - 只做.*不做
+    - 仅限于
+    - 不涉及
+    - 不包含
+
+  # 专业边界滥用检测关键词
+  professional_boundary_abuse_keywords:
+    - 不负责
+    - 只做.*不做
+    - 不管
+    - 不承担
+
+  # 切面填充检测模式
+  facet_filler_patterns:
+    - 掌握相关领域知识
+    - 熟悉(?:相关)?领域(?:知识|规范)
+    - 识别潜在风险
+    - 保证输出质量
+    - 考虑全局影响
+    - 优化资源投入
+    - 分析任务复杂度
+    - 确保.*质量
+
+  # 盲区甩锅检测关键词
+  blind_dump_keywords:
+    - 仅供参考
+    - 请自行验证
+    - 可能存在.*盲区
+    - 不保证.*(?:完整|准确)
+    - 使用前请.*(?:检查|验证|确认)
+
+# 占位符检测
+placeholders:
+  general_patterns:
+    - '\[(?!认知操作\])(?![^\]]*\]\()[^\]]*\]'
+    - '\{.*?\}'
+    - 'TODO|FIXME|XXX|HACK'
+  # 来自 output-template.md 的必须填充占位符
+  unresolved_patterns:
+    - pattern: '\{kebab-case-name\}'
+      label: name 占位符
+    - pattern: '\{SKILL名称\}'
+      label: 标题占位符
+    - pattern: '\{YYYY-MM-DD\}'
+      label: 日期占位符
+    - pattern: '\{核心领域名\}'
+      label: 核心领域名占位符
+    - pattern: '\{领域\d\}'
+      label: 辐射领域名占位符
+    - pattern: '\{该 SKILL (?:不可逾越的安全红线|不得越界的专业领域限制)\}'
+      label: 边界声明占位符
+    - pattern: '\{自然语言/结构化/混合[,，]\s*简短描述\}'
+      label: 输出格式描述占位符
+    - pattern: '\{格式类型\}'
+      label: 输出格式类型占位符
+    - pattern: '\{Mermaid \{类型\}\}'
+      label: Mermaid 类型占位符
+    - pattern: '\{N\}'
+      label: 循环轮数占位符
+    - pattern: '\{填充色\}'
+      label: Mermaid 填充色占位符
+    - pattern: '\{文字色\}'
+      label: Mermaid 文字色占位符
+    - pattern: '\{场景\}'
+      label: 示例场景占位符
+    - pattern: '\{用户输入内容\}'
+      label: 示例输入占位符
+    - pattern: '\{期望输出内容[^}]*\}'
+      label: 示例输出占位符
+    - pattern: '\{N 个月\}'
+      label: 审查周期占位符
+    - pattern: '\{MAJOR\.MINOR\.PATCH\}'
+      label: 语义化版本占位符
+  # 占位符误报排除
+  allowed_patterns:
+    - '^\[.*\]\(.*\)$'            # Markdown 链接
+    - '^\[".*"\]$'                  # Mermaid 节点文本
+    - '^\["\[.*\].*"\]$'          # Mermaid 嵌套节点
+    - '^\[(Critical|Non-Critical) (node|Checkpoint)'
+    - '^\[(Read|Write|AskUserQuestion|NotifyUser|RunCommand|Grep|Glob|Task|Skill|DeleteFile|Edit|TodoWrite)\b'
+  allowed_literals:
+    - "[ ]"
+    - "[x]"
+    - "[X]"
+    - "[工具名]"
+    - "[文件名]"
+    - "[目录名]"
+    - "[参数]"
+    - "[操作]"
+    - "{date}"
+
+# 工具绑定
+tools:
+  known:
+    - Read
+    - Write
+    - Edit
+    - DeleteFile
+    - RunCommand
+    - CheckCommandStatus
+    - StopCommand
+    - Grep
+    - Glob
+    - LS
+    - SearchCodebase
+    - WebSearch
+    - WebFetch
+    - AskUserQuestion
+    - NotifyUser
+    - Task
+    - Skill
+    - run_mcp
+    - TodoWrite
+    - OpenPreview
+    - GetDiagnostics
+  # 工具绑定豁免的 SKILL
+  binding_exempt_skills:
+    - ur-skill
+    - pre-analysis-engineer
+  # 看起来像动作但可豁免的动词前缀
+  exempt_action_prefixes:
+    - 读取
+    - 确认
+    - 检查
+    - 组装
+    - 汇总
+    - 模拟
+    - 填充
+  action_verbs:
+    - 读取
+    - 调用
+    - 执行
+    - 运行
+    - 搜索
+    - 创建
+    - 写入
+    - 编辑
+    - 删除
+    - 打开
+
+# 审查/测试类 SKILL 输出规格
+output_spec:
+  keywords:
+    - review
+    - test
+    - audit
+    - scan
+    - 审查
+    - 评审
+    - 测试
+    - 审计
+    - 扫描
+    - 安全
+    - code-review
+    - security-review
+    - 质量
+    - quality
+  checks:
+    mermaid:
+      label: Mermaid 可视化要求
+      patterns:
+        - mermaid
+        - flowchart
+        - sequenceDiagram
+        - classDiagram
+        - stateDiagram
+    severity:
+      label: 问题分级
+      patterns:
+        - (极危|高危|中危|低危|Critical|High|Medium|Low).*级
+    interaction:
+      label: 用户交互模式
+      patterns:
+        - AskUserQuestion
+        - 确认.*修复.*验证.*循环
+        - 分阶段交付
+        - 用户交互模式
+    decision:
+      label: 判决策略
+      patterns:
+        - 判决策略|阻断.*合入|建议.*合入
+        - 通过\|需修改\|阻断
+
+# 身份声明
+identity:
+  inflated_titles:
+    - 专家
+    - 教授
+    - 大师
+    - 达人
+    - 资深
+    - 顶级
+    - 领军
+  experience_patterns:
+    - '\d+\s*年.*经验'
+    - '\d+\+?\s*years.*experience'
+  identity_keywords:
+    - '**身份**:'
+    - '**Role**:'
+    - '角色：'
+    - '身份:'
+    - 'Role:'
+
+# UR-SKILL 文件泄漏检测
+self_contained:
+  forbidden_prefixes:
+    - design-guides/
+    - templates/
+    - design-rationale/
+    - Scripts/
+  special_files:
+    - References/pre-analysis.md
+    - agent/SKILL.md
+  exempt_skills:
+    - ur-skill
+    - pre-analysis-engineer
+
+# 文件依赖决策检查
+file_dependency:
+  workflow_heading: '^#{2,3}\s*(?:\d+\.?\s*)?工作流'
+  indicators:
+    - 文件依赖决策
+    - pre-analysis.md §2
+    - pre-analysis.md#2
+    - design-rationale.md §9
+    - design-rationale.md#9
+
+# 引用目录
+reference_dirs:
+  - References
+  - Scripts
+  - assets
+  - design-guides
+  - templates
+
+# 已废弃工具名
+deprecated_tools:
+  SearchReplace: Edit
+
+messages:
+  missing_frontmatter_delimiter: "SKILL.md 必须以 `---` 开头"
+  missing_frontmatter_end: "无法解析 frontmatter：缺少第二个 `---` 分隔符"
+  pyyaml_missing: "未安装 PyYAML，跳过 frontmatter 字段类型校验（请执行 `pip install pyyaml`）"
+  frontmatter_yaml_error: "frontmatter YAML 解析失败: {error}"
+  frontmatter_missing_field: "frontmatter 缺少必填字段: {field}"
+  frontmatter_wrong_type: "frontmatter 字段 {field} 类型错误，期望 {expected}"
+  frontmatter_dict_required: "frontmatter 字段 {field} 必须是字典"
+  name_not_kebab: "name '{name}' 不是合法 kebab-case"
+  description_length: "description 长度 {length} 不在 {min}-{max} 范围内"
+  type_invalid: "type '{type}' 不是合法值 {valid_types}"
+  metadata_updated_missing: "metadata.updated 缺失"
+  metadata_updated_format: "metadata.updated '{updated}' 不是 YYYY-MM-DD 格式"
+  body_too_long: "body 行数 {lines} 超过阈值 {max_lines}"
+  placeholder_residue: "疑似占位符残留 ({pattern}): {matches}"
+  missing_risk_boundary: "缺少风险边界声明: {boundary}"
+  risk_boundary_abuse: "风险边界滥用: 疑似免责措辞 '{keyword}' -> '{content}'"
+  professional_boundary_abuse: "专业边界滥用: 疑似能力降级 '{keyword}' -> '{content}'"
+  facet_filler: "切面填充: {facet} 切面过于简短，疑似套话 '{content}'"
+  blind_spot_dumping: "盲区甩锅: 纯声明式盲区（无'已尝试动作'）"
+  first_person: "第一人称: 第 {line} 行含 '我'，应改为'你'或无主语 -> '{content}'"
+  first_person_description: "第一人称: frontmatter description 含 '我'，应改为无主语 -> '{content}'"
+  inflated_title_body: "膨胀头衔: body 第{line}行包含 '{title}'，应使用具体职业名（工程师/分析师/审查员），非虚词头衔"
+  inflated_title_description: "膨胀头衔: frontmatter description 包含 '{title}'，应使用具体职业名"
+  fabricated_years_body: "虚构年限: body 第{line}行包含 '{years}'，LLM 没有'年限经验'概念，应改为主攻领域/方法论描述"
+  fabricated_years_description: "虚构年限: frontmatter description 包含 '{years}'，LLM 没有'年限经验'概念，应改为主攻领域/方法论描述"
+  deprecated_tool: "工具名迁移: 发现 '{old}'，应使用 '{new}' 替代"
+  workflow_step_count: "步骤 '{step}' 检查项数量 {actual}，期望 {expected}"
+  workflow_missing_dimension: "节点 '{step}' 缺少必检维度: {dimension}"
+  workflow_critical_missing_dimension: "关键节点 '{step}' 缺少维度: {dimension}"
+  workflow_not_found: "未找到工作流区块"
+  rules_block_not_found: "未找到规则区块（标题应包含'规则'或'Rules'）"
+  rules_no_entries: "规则区块中未找到任何规则条目（bullet list）"
+  rule_no_rfc2119: "规则{index} 未使用 RFC 2119 关键词: '{content}'"
+  reference_missing: "引用的 reference 文件不存在: {path}"
+  script_missing: "引用的 script 文件不存在: {path}"
+  asset_missing: "引用的 asset 文件不存在: {path}"
+  design_guide_missing: "引用的 design-guide 文件不存在: {path}"
+  template_missing: "引用的 template 文件不存在: {path}"
+  file_dependency_missing: "文件依赖决策缺失：工作流中未发现文件依赖决策指令（应添加 '文件依赖决策' 或引用 pre-analysis.md §2 或 design-rationale.md §9）"
+  tool_binding_missing: "工具绑定缺失：以下动作未绑定工具（格式 [工具名] 操作 → 输出），但同 SKILL 的其他动作已绑定工具：\n{lines}"
+  output_spec_missing: "审查/测试类 SKILL 缺少 {label}：未检测到 {patterns} 相关模式"
+  ur_skill_leak: "UR-SKILL 文件引用泄漏: 生成 SKILL 中引用了 '{path}'，违反了自包含规则（MUST NOT 引用 UR-SKILL 内部文件）"
+  unresolved_placeholder: "占位符未填充: 发现 {count} 处 '{label}'"
+  validation_failed: "校验失败：发现 {count} 个问题"
+  validation_passed: "校验通过"
+  skill_file_not_found: "错误：未找到 {path}"
+  summary_line: "  - {item}"

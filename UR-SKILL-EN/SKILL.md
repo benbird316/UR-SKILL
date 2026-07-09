@@ -2,7 +2,7 @@
 name: ur-skill
 description: "Use whenever the user wants to create, design, standardize, or package a SKILL.md file, AI agent skill, or structured system prompt. Invoke even if they don't explicitly say 'SKILL'."
 type: prompt
-whenToUse: When the user needs to convert requirements into a standard SKILL.md, design an AI Agent skill definition, or generate a structured system prompt
+whenToUse: When the user says "create a skill for me", "write a skill", "optimize this skill", "make this into a skill", or any casual request to generate or improve a skill. No need for the user to use technical jargon.
 metadata:
   updated: 2026-07-09
 ---
