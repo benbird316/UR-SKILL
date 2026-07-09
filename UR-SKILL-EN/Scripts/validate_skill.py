@@ -86,18 +86,9 @@ def _print_summary(ctx: SkillContext, config: dict) -> None:
     msgs = config.get("messages", {})
     body_lines = len(ctx.body.splitlines())
     max_lines = config.get("thresholds", {}).get("max_body_lines", 500)
-    summary_items = [
-        "frontmatter 字段完整",
-        f"body 行数 {body_lines}/{max_lines}",
-        "无占位符",
-        "风险边界声明完整",
-        "专业边界声明完整",
-        "工作流检查项数量正确",
-        "引用文件全部存在",
-        "工具绑定检查通过",
-        "输出规格检查通过",
-    ]
-    print("\n".join(msgs["summary_line"].format(item=item) for item in summary_items))
+    summary_items = msgs.get("summary_items", [])
+    rendered = [item.format(body_lines=body_lines, max_lines=max_lines) for item in summary_items]
+    print("\n".join(msgs["summary_line"].format(item=item) for item in rendered))
 
 
 if __name__ == "__main__":
