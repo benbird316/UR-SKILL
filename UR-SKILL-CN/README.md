@@ -14,11 +14,9 @@
 
 ---
 
-**UR-SKILL 将模糊的自然语言需求转化为结构化、可验证的 AI Agent 技能包或系统提示词——项目自身的中英双语翻译、文档校对工作，就是用 UR-SKILL 生产的翻译技能完成的（自吃狗粮）。**
+**UR-SKILL 将模糊的自然语言需求转化为结构化、可验证的 AI Agent 技能包或系统提示词——项目自身的 3 个内部 agent（research-analyst、tech-documentation、script-engineer）及中英翻译技能 `cn-en-tech-translator`，均由 UR-SKILL 方法论构建（自吃狗粮）。**
 
 它不是另一个提示词模板。它是一座**工厂**：一套 4 阶段、13 步的验证工作流 × 6 维度审视 × 能力矩阵，系统化地设计、评审并产出生产级技能。生成的技能在交付前通过 15+ 项自动化质量检查。完全符合 [agentskills.io](https://agentskills.io/specification) 开放标准。
-
-**本项目自身的 3 个内部 Agent（research-analyst、tech-documentation、script-engineer）均由 UR-SKILL 方法学生成——能力矩阵、工作流、规则体系均遵循 4 阶段 × 13 步 + 6 维度审查标准，仅经人工轻微优化措辞。**
 
 ---
 
@@ -54,7 +52,7 @@
 | **自动化验证** | Python 脚本检查 15+ 质量指标，可配置误报规则 |
 | **双语支持** | 中/英双版本，复制即用，适配主流 Agent 平台 |
 | **自包含** | 每个技能包独立运行，零外部依赖 |
-| **自迭代** | 自吃狗粮——项目自身的中英翻译、文档校对用 UR-SKILL 生成的翻译技能完成 |
+| **自迭代** | 自吃狗粮——3 个内部 agent + 翻译技能 `cn-en-tech-translator` 均由 UR-SKILL 方法论构建，发布前通过 135 测试 + 87% 覆盖率的 CI 验证 |
 
 ### 对比
 
