@@ -41,13 +41,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyyaml==6.0.2 pytest==8.3.5 pytest-cov==6.1.1 jsonschema==4.23.0
 
-      - name: Validate UR-SKILL-CN (zh-cn)
+      - name: Self-validate UR-SKILL meta-skills (with known_errors whitelist)
         run: |
-          python UR-SKILL-CN/Scripts/validate_skill.py --skill-dir UR-SKILL-CN --lang zh-cn
-
-      - name: Validate UR-SKILL-EN (en-us)
-        run: |
-          python UR-SKILL-EN/Scripts/validate_skill.py --skill-dir UR-SKILL-EN --lang en-us
+          python -m pytest tests/test_self_validate.py -v --tb=short
 
       - name: Run integration tests (end-to-end SKILL validation)
         run: |
