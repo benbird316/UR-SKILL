@@ -14,39 +14,43 @@ frontmatter:
     name: str
     description: str
     metadata: dict
-  valid_types:
-    - prompt
-    - tool
-    - hybrid
   metadata:
     updated_required: true
     updated_format: "%Y-%m-%d"
 
+# Workflow step configuration
 workflow:
-  step_heading_pattern: '^#{2,4}\s*\d+\.\s*(\S+?)\s*\(.*?\).*?(?:dimension|dimensions).*$'
+  step_heading_pattern: '^#{3,5}\s*(?:Master Node|Step)\s*\d*[：:]\s*(\S+?)\s*[（(].*?[）)].*?维.*$'
   step_names:
     - Parse
-    - Pre-Analysis
+    - Coordinate
+    - Dispatch
     - Research
-    - Architecture
+    - Planning
+    - Consolidate
     - Execute
-    - Deliver
-    - Verify
-    - Validate
+    - Validation
+    - Verification
+    - Loop
+    - Assemble
   expected_checks:
-    Parse: 3
-    Pre-Analysis: 4
+    Parse: 4
+    Coordinate: 4
+    Dispatch: 4
     Research: 7
-    Architecture: 7
+    Planning: 7
+    Consolidate: 4
     Execute: 4
-    Deliver: 4
-    Verify: 7
-    Validate: 8
+    Validation: 7
+    Verification: 7
+    Loop: 0
+    Assemble: 4
   critical_steps:
     - Research
-    - Architecture
-    - Verify
-    - Validate
+    - Planning
+    - Validation
+    - Verification
+    - Loop
   required_dimensions:
     - Goal Alignment
     - Fact Anchoring
@@ -57,7 +61,7 @@ workflow:
     - Impact Projection
 
 rules:
-  rules_heading_pattern: '^#{2,3}\s*(?:\d+\.?\s*)?[Rr]ules.*$'
+  rules_heading_pattern: '^#{2,3}\s*(?:\d+\.?\s*)?(?:(?:核心)?规则|[Rr]ules|(?:Hard\s+)?Constraints|Hard\s+Prohibitions|Strong\s+Preferences|Optional).*$'
   rfc2119_keywords:
     - MUST
     - MUST NOT
@@ -65,31 +69,37 @@ rules:
     - SHOULD NOT
     - MAY
 
+  # Risk boundary statement keywords (only for UR-SKILL self-check)
   risk_boundaries:
     - illegal
     - discrimination
     - malicious injection
 
+  # Risk boundary abuse detection keywords
   risk_boundary_abuse_keywords:
     - not responsible
-    - does not belong
-    - outside the scope
-    - not in charge of
-    - does not assume
-    - only does.*not do
-    - limited to
-    - does not involve
+    - not part of
+    - out of scope
+    - does not cover
+    - disclaim
+    - not liable
+    - outside.*scope
+    - only.*does not
+    - strictly limited to
+    - not involved
     - does not include
 
+  # Professional boundary abuse detection keywords
   professional_boundary_abuse_keywords:
     - not responsible
-    - only does.*not do
-    - not in charge of
-    - does not assume
+    - only.*does not
+    - disclaim
+    - not liable
 
+  # Facet filler detection patterns
   facet_filler_patterns:
     - master relevant domain knowledge
-    - familiar with (?:relevant )?domain (?:knowledge|standards)
+    - familiar with (?:relevant )?(?:domain |field )(?:knowledge|standards)
     - identify potential risks
     - ensure output quality
     - consider global impact
@@ -97,71 +107,114 @@ rules:
     - analyze task complexity
     - ensure.*quality
 
+  # Blind spot dumping detection keywords
   blind_dump_keywords:
     - for reference only
-    - please verify yourself
-    - there may be.*blind spots
+    - please verify
+    - may contain.*(?:gaps|blind spots)
     - does not guarantee.*(?:completeness|accuracy)
-    - please.*(?:check|verify|confirm) before use
+    - please (?:check|verify|confirm).*before use
 
+# Placeholder detection
 placeholders:
   general_patterns:
-    - '\[(?!cognitive operation\]|Cognitive Op\])(?![^\]]*\]\()[^\]]*\]'
+    - '\[(?!认知操作\]|Cognitive\s+(?:Op|Operation)\])(?![^\]]*\]\()[^\]]*\]'
     - '\{.*?\}'
-    - 'TODO|FIXME|XXX|HACK'
+    - 'TODO|FIXME|XXX\s*:|HACK'
+  # Must-fill placeholders from skill-template.md
   unresolved_patterns:
     - pattern: '\{kebab-case-name\}'
       label: name placeholder
-    - pattern: '\{SKILL name\}'
+    - pattern: '\{SKILL名称\}'
       label: title placeholder
+    - pattern: '\{SKILL Name\}'
+      label: skill name placeholder
     - pattern: '\{YYYY-MM-DD\}'
       label: date placeholder
-    - pattern: '\{core domain name\}'
+    - pattern: '\{核心领域名\}'
       label: core domain name placeholder
-    - pattern: '\{domain\d\}'
+    - pattern: '\{Core Domain Name\}'
+      label: core domain name placeholder
+    - pattern: '\{领域\d\}'
       label: radiating domain name placeholder
-    - pattern: '\{This SKILL (?:must not cross|does not cross).*(?:safety red line|professional domain boundary)\}'
+    - pattern: '\{Domain \d\}'
+      label: radiating domain name placeholder
+    - pattern: '\{该 SKILL (?:不可逾越的安全红线|不得越界的专业领域限制)\}'
       label: boundary declaration placeholder
-    - pattern: '\{natural language/structured/hybrid[,，]\s*brief description\}'
+    - pattern: '\{This SKILL(?:'')?(?:s)? (?:inviolable safety red lines|professional boundary restrictions)\}'
+      label: boundary declaration placeholder
+    - pattern: '\{自然语言/结构化/混合[,，]\s*简短描述\}'
       label: output format description placeholder
+    - pattern: '\{natural language/semi-structured/structured, short description\}'
+      label: output format description placeholder
+    - pattern: '\{格式类型\}'
+      label: output format type placeholder
     - pattern: '\{format type\}'
       label: output format type placeholder
+    - pattern: '\{Mermaid \{类型\}\}'
+      label: Mermaid type placeholder
     - pattern: '\{Mermaid \{type\}\}'
       label: Mermaid type placeholder
     - pattern: '\{N\}'
-      label: loop round count placeholder
+      label: loop count placeholder
+    - pattern: '\{填充色\}'
+      label: Mermaid fill color placeholder
     - pattern: '\{fill color\}'
       label: Mermaid fill color placeholder
+    - pattern: '\{文字色\}'
+      label: Mermaid text color placeholder
     - pattern: '\{text color\}'
       label: Mermaid text color placeholder
+    - pattern: '\{场景\}'
+      label: example scenario placeholder
     - pattern: '\{scenario\}'
       label: example scenario placeholder
+    - pattern: '\{用户输入内容\}'
+      label: example input placeholder
     - pattern: '\{user input content\}'
       label: example input placeholder
-    - pattern: '\{expected output content[^}]*\}'
+    - pattern: '\{期望输出内容[^}]*\}'
       label: example output placeholder
+    - pattern: '\{expected output[^}]*\}'
+      label: example output placeholder
+    - pattern: '\{N 个月\}'
+      label: review period placeholder
     - pattern: '\{N months\}'
       label: review period placeholder
     - pattern: '\{MAJOR\.MINOR\.PATCH\}'
-      label: semantic version placeholder
+      label: semver placeholder
+  # Placeholder false positive exclusion
   allowed_patterns:
-    - '^\[.*\]\(.*\)$'
-    - '^\[".*"\]$'
-    - '^\["\[.*\].*"\]$'
+    - '^\[.*\]\(.*\)$'            # Markdown links
+    - '^\[".*"\]$'                  # Mermaid node text
+    - '^\["\[.*\].*"\]$'          # Mermaid nested nodes
     - '^\[(Critical|Non-Critical) (node|Checkpoint)'
     - '^\[(Read|Write|AskUserQuestion|NotifyUser|RunCommand|Grep|Glob|Task|Skill|DeleteFile|Edit|TodoWrite)\b'
   allowed_literals:
     - "[ ]"
     - "[x]"
     - "[X]"
-    - "[toolname]"
-    - "[ToolName]"
-    - "[filename]"
-    - "[dirname]"
-    - "[parameter]"
-    - "[operation]"
+    - "[Tool Name]"
+    - "[FileName]"
+    - "[DirName]"
+    - "[Param]"
+    - "[Action]"
     - "{date}"
+    # Known tool names (Chinese)
+    - "[联网搜索]"
+    - "[联网抓取]"
+    - "[文件读取]"
+    - "[文件写入]"
+    - "[文本搜索]"
+    # Internal notation markers
+    - "[Low]"
+    - "[Medium]"
+    - "[High]"
+    - "[Inferred: confidence low]"
+    - "[Translator's note: ...]"
+    - "[来源, 置信度]"
 
+# Tool bindings
 tools:
   known:
     - Read
@@ -185,21 +238,31 @@ tools:
     - TodoWrite
     - OpenPreview
     - GetDiagnostics
+  # Skills exempt from tool binding check
   binding_exempt_skills:
     - ur-skill
     - ur-skill-cn
     - ur-skill-en
-    - pre-analysis-engineer
+    - research-analyst
+  # Verb prefixes that look like actions but are exempt
   exempt_action_prefixes:
     - read
     - confirm
     - check
+    - verify
     - assemble
-    - summarize
+    - consolidate
     - simulate
-    - populate
+    - fill
+    - identify
+    - recognize
+    - extract
+    - determine
+    - output
+    - prepare
   action_verbs:
     - read
+    - invoke
     - call
     - execute
     - run
@@ -209,7 +272,11 @@ tools:
     - edit
     - delete
     - open
+    - generate
+    - dispatch
+    - bind
 
+# Review/test SKILL output specifications
 output_spec:
   keywords:
     - review
@@ -229,10 +296,9 @@ output_spec:
         - classDiagram
         - stateDiagram
     severity:
-      label: Issue severity classification
+      label: Issue severity levels
       patterns:
-        - (Critical|High|Medium|Low).*severity
-        - (Critical|High|Medium|Low).*level
+        - (Critical|High|Medium|Low)
     interaction:
       label: User interaction mode
       patterns:
@@ -243,30 +309,31 @@ output_spec:
     decision:
       label: Decision strategy
       patterns:
-        - decision strategy
-        - block.*merge
-        - suggest.*merge
-        - Pass\|Revision Required\|Block
+        - Decision Strategy|Reject|Approved|Block.*merge|Recommen..merge
 
+# Identity declaration
 identity:
   inflated_titles:
-    - expert
-    - professor
-    - master
-    - guru
-    - veteran
-    - senior
-    - top-tier
-    - leading
+    - Guru
+    - Professor
+    - Master
+    - Grandmaster
+    - Senior
+    - Top-tier
+    - Leading
+    - Elite
+    - Expert
   experience_patterns:
     - '\d+\s*years.*experience'
     - '\d+\+?\s*years.*experience'
   identity_keywords:
     - '**Identity**:'
     - '**Role**:'
-    - 'Identity:'
     - 'Role:'
+    - 'Identity:'
+    - 'You are'
 
+# UR-SKILL file leak detection
 self_contained:
   forbidden_prefixes:
     - design-guides/
@@ -274,23 +341,62 @@ self_contained:
     - design-rationale/
     - Scripts/
   special_files:
-    - References/pre-analysis.md
     - agent/SKILL.md
   exempt_skills:
     - ur-skill
     - ur-skill-cn
     - ur-skill-en
-    - pre-analysis-engineer
+    - research-analyst
 
+# File dependency check
 file_dependency:
-  workflow_heading: '^#{2,3}\s*(?:\d+\.?\s*)?(?:Workflow|[Ww]orkflow)'
+  workflow_heading: '^#{2,3}\s*(?:\d+\.?\s*)?(?:工作流|Workflow)'
   indicators:
     - file dependency decision
-    - pre-analysis.md section 2
-    - pre-analysis.md#2
-    - design-rationale.md section 9
+    - file dependency declaration
+    - design-rationale.md §9
     - design-rationale.md#9
 
+# Capability-workflow confusion detection
+capability_workflow_boundary:
+  # Terms that should NOT appear in the workflow section
+  workflow_forbidden_terms:
+    - Capability Matrix
+    - Capability Architecture
+    - Core Domain
+    - Radiating Domain
+    - Capability Facet
+    - domain fusion
+    - 能力矩阵
+    - 核心领域
+    - 辐射领域
+    - 能力切面
+    - 领域融合
+  # Terms that should NOT appear in the capability section
+  capability_forbidden_terms:
+    - step\s*\d+
+    - Step\s*\d+
+    - checklist
+    - Workflow
+    - Master Node
+    - Sub.?Node
+    - 步骤\d+
+    - 工作流
+    - 检查项
+
+# Semantic alignment check
+semantic_alignment:
+  # Domain keywords extracted from capability matrix must appear in workflow actions
+  min_matched_domains: 1
+
+# Tool reference table detection
+tool_reference_table:
+  patterns:
+    - Tool.*(?:Reference|Table|Map)
+    - 工具.*表
+    - 工具.*引用
+
+# Reference directories
 reference_dirs:
   - References
   - Scripts
@@ -298,63 +404,67 @@ reference_dirs:
   - design-guides
   - templates
 
+# Deprecated tool names
 deprecated_tools:
   SearchReplace: Edit
 
 messages:
   missing_frontmatter_delimiter: "SKILL.md must start with `---`"
-  missing_frontmatter_end: "Cannot parse frontmatter: missing second `---` delimiter"
-  pyyaml_missing: "PyYAML not installed, skipping frontmatter field type validation (run `pip install pyyaml`)"
-  frontmatter_yaml_error: "frontmatter YAML parse failed: {error}"
-  frontmatter_missing_field: "frontmatter missing required field: {field}"
-  frontmatter_wrong_type: "frontmatter field {field} wrong type, expected {expected}"
-  frontmatter_dict_required: "frontmatter field {field} must be a dict"
+  missing_frontmatter_end: "Cannot parse frontmatter: missing closing `---` delimiter"
+  pyyaml_missing: "PyYAML is not installed, skipping frontmatter field validation (run `pip install pyyaml`)"
+  frontmatter_yaml_error: "Frontmatter YAML parsing failed: {error}"
+  frontmatter_missing_field: "Frontmatter missing required field: {field}"
+  frontmatter_wrong_type: "Frontmatter field {field} has wrong type, expected {expected}"
+  frontmatter_dict_required: "Frontmatter field {field} must be a dictionary"
   name_not_kebab: "name '{name}' is not valid kebab-case"
-  description_length: "description length {length} not within {min}-{max} range"
-  type_invalid: "type '{type}' is not a valid value {valid_types}"
-  metadata_updated_missing: "metadata.updated missing"
-  metadata_updated_format: "metadata.updated '{updated}' is not YYYY-MM-DD format"
-  body_too_long: "body line count {lines} exceeds threshold {max_lines}"
-  placeholder_residue: "Suspected placeholder residue ({pattern}): {matches}"
-  missing_risk_boundary: "Missing risk boundary declaration: {boundary}"
-  risk_boundary_abuse: "Risk boundary abuse: suspected disclaimer language '{keyword}' -> '{content}'"
+  description_length: "Description length {length} is out of range ({min}-{max})"
+  metadata_updated_missing: "metadata.updated is missing"
+  metadata_updated_format: "metadata.updated '{updated}' is not in YYYY-MM-DD format"
+  body_too_long: "Body has {lines} lines, exceeding threshold {max_lines}"
+  placeholder_residue: "Suspicious placeholder residue ({pattern}): {matches}"
+  missing_risk_boundary: "Missing risk boundary statement: {boundary}"
+  risk_boundary_abuse: "Risk boundary abuse: suspected disclaimer keyword '{keyword}' -> '{content}'"
   professional_boundary_abuse: "Professional boundary abuse: suspected capability degradation '{keyword}' -> '{content}'"
-  facet_filler: "Facet filler: Facet {facet} too brief, suspected boilerplate '{content}'"
-  blind_spot_dumping: "Blind spot dumping: purely declarative blind spot (no 'attempted actions')"
-  first_person: "First person: line {line} contains 'I', should use 'you' or no subject -> '{content}'"
+  facet_filler: "Facet filler: facet {facet} is too brief, suspected formulaic phrasing '{content}'"
+  blind_spot_dumping: "Blind spot dumping: pure declarative blind spots (no 'attempted' actions found)"
+  first_person: "First person: line {line} uses 'I', should use 'you' or no subject -> '{content}'"
   first_person_description: "First person: frontmatter description contains 'I', should use no subject -> '{content}'"
-  inflated_title_body: "Inflated title: body line {line} contains '{title}', should use specific profession name (engineer / analyst / reviewer), not hollow title"
-  inflated_title_description: "Inflated title: frontmatter description contains '{title}', should use specific profession name"
-  fabricated_years_body: "Fabricated years: body line {line} contains '{years}', LLMs have no concept of 'years of experience', should use domain / methodology description instead"
-  fabricated_years_description: "Fabricated years: frontmatter description contains '{years}', LLMs have no concept of 'years of experience', should use domain / methodology description instead"
+  inflated_title_body: "Inflated title: body line {line} contains '{title}', use concrete occupation (engineer/analyst/reviewer), not abstract honorifics"
+  inflated_title_description: "Inflated title: frontmatter description contains '{title}', use concrete occupation"
+  fabricated_years_body: "Fabricated experience: body line {line} contains '{years}', LLMs do not have 'years of experience', use domain/methodology descriptions instead"
+  fabricated_years_description: "Fabricated experience: frontmatter description contains '{years}', LLMs do not have 'years of experience'"
   deprecated_tool: "Tool name migration: found '{old}', should use '{new}' instead"
-  workflow_step_count: "Step '{step}' check item count {actual}, expected {expected}"
+  workflow_step_count: "Step '{step}' has {actual} checklist items, expected {expected}"
   workflow_missing_dimension: "Node '{step}' missing required dimension: {dimension}"
   workflow_critical_missing_dimension: "Critical node '{step}' missing dimension: {dimension}"
-  workflow_not_found: "Workflow block not found"
-  rules_block_not_found: "Rules block not found (heading should contain 'Rules')"
-  rules_no_entries: "No rule entries found in rules block (bullet list)"
-  rule_no_rfc2119: "Rule{index} does not use RFC 2119 keyword: '{content}'"
+  workflow_not_found: "Workflow section not found"
+  rules_block_not_found: "Rules block not found (heading should contain 'Rules' or '规则')"
+  rules_no_entries: "No rule entries found in rules section (bullet list)"
+  rule_no_rfc2119: "Rule {index} does not use RFC 2119 keywords: '{content}'"
   reference_missing: "Referenced reference file does not exist: {path}"
   script_missing: "Referenced script file does not exist: {path}"
   asset_missing: "Referenced asset file does not exist: {path}"
-  design_guide_missing: "Referenced design-guide file does not exist: {path}"
+  design_guide_missing: "Referenced design guide file does not exist: {path}"
   template_missing: "Referenced template file does not exist: {path}"
-  file_dependency_missing: "File dependency decision missing: no 'file dependency decision' instruction found in workflow (should add 'file dependency decision' or reference pre-analysis.md section 2 or design-rationale.md section 9)"
-  tool_binding_missing: "Tool binding missing: the following actions are not bound to tools (format [ToolName] operation -> output), but other actions in the same SKILL are bound to tools:\n{lines}"
-  output_spec_missing: "Review / testing type SKILL missing {label}: did not detect patterns related to {patterns}"
-  ur_skill_leak: "UR-SKILL file reference leak: generated SKILL references '{path}', violating self-containment rule (MUST NOT reference UR-SKILL internal files)"
-  unresolved_placeholder: "Placeholder unfilled: found {count} occurrence(s) of '{label}'"
-  validation_failed: "Validation failed: {count} issue(s) found"
+  file_dependency_missing: "File dependency decision missing: no file dependency decision instruction found in workflow (add 'file dependency decision' or reference design-rationale.md §9)"
+  tool_binding_missing: "Tool binding missing: the following actions lack tool bindings (format [ToolName] operation -> output), while other actions in the same SKILL are bound:\n{lines}"
+  output_spec_missing: "Review/test SKILL missing {label}: no patterns matching {patterns} found"
+  ur_skill_leak: "UR-SKILL file reference leak: generated SKILL references '{path}', violating the self-contained rule (MUST NOT reference UR-SKILL internal files)"
+  unresolved_placeholder: "Unresolved placeholder: found {count} occurrences of '{label}'"
+  capability_workflow_confusion: "Capability-workflow confusion: '{term}' appears in the {section} area; capability matrix and workflow must be strictly separated"
+  capability_workflow_confused_terms: "Capability-workflow confusion: {count} forbidden terms found in {section}: {terms}"
+  tool_reference_table_missing: "Tool reference table missing: workflow uses tool bindings but no tool reference table found (should contain 'Tool Reference' or similar identifier)"
+  semantic_alignment_weak: "Weak semantic alignment: {matched}/{total} capability domain terms absent in workflow actions ({unmatched}). Consider strengthening semantic consistency"
+  validation_failed: "Validation failed: found {count} issue(s)"
   validation_passed: "Validation passed"
-  skill_file_not_found: "Error: {path} not found"
+  skill_file_not_found: "Error: SKILL.md not found at {path}"
   summary_items:
     - "frontmatter fields complete"
-    - "body lines {body_lines}/{max_lines}"
-    - "no placeholders"
-    - "risk boundary declaration complete"
-    - "professional boundary declaration complete"
-    - "workflow check item counts correct"
+    - "body {body_lines}/{max_lines} lines"
+    - "no placeholder residues"
+    - "risk boundaries complete"
+    - "professional boundaries complete"
+    - "workflow checklist counts correct"
     - "all referenced files exist"
     - "tool binding check passed"
     - "output spec check passed"

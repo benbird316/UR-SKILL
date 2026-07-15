@@ -18,6 +18,9 @@ try:
     _HAS_JSONSCHEMA = True
 except ImportError:
     _HAS_JSONSCHEMA = False
+    import sys
+    print("[WARNING] jsonschema not installed — JSON Schema validation will be skipped. "
+          "Install with: pip install jsonschema", file=sys.stderr)
 
 
 def validate(ctx: SkillContext, config: dict[str, Any]) -> list[Finding]:
@@ -62,11 +65,6 @@ def _validate_frontmatter(ctx: SkillContext, config: dict[str, Any]) -> list[Fin
         desc = fm["description"]
         if isinstance(desc, str) and (len(desc) < min_desc or len(desc) > max_desc):
             findings.append(Finding("description-length", msgs["description_length"].format(length=len(desc), min=min_desc, max=max_desc), "error"))
-
-    valid_types = set(fm_cfg.get("valid_types", []))
-    fm_type = fm.get("type") or (fm.get("metadata") or {}).get("type")
-    if fm_type and fm_type not in valid_types:
-        findings.append(Finding("invalid-type", msgs["type_invalid"].format(type=fm_type, valid_types=valid_types), "error"))
 
     if isinstance(fm.get("metadata"), dict):
         updated = fm["metadata"].get("updated")
@@ -122,7 +120,7 @@ def _validate_body(ctx: SkillContext, config: dict[str, Any]) -> list[Finding]:
                 findings.append(Finding("placeholder-residue", msgs["placeholder_residue"].format(pattern=pattern, matches=filtered[:5]), "error"))
 
     # UR-SKILL 自身风险边界关键词检查
-    is_ur_skill = ctx.frontmatter.get("name") in ("ur-skill", "pre-analysis-engineer")
+    is_ur_skill = ctx.frontmatter.get("name") in ("ur-skill", "research-analyst")
     if is_ur_skill:
         for boundary in config.get("rules", {}).get("risk_boundaries", []):
             if boundary not in body_clean:

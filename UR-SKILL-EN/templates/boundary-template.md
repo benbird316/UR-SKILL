@@ -1,28 +1,28 @@
 # Boundary Declaration Template
 
-> Purpose: Defines the standard fill-in format for SKILL risk boundary declarations and professional boundary declarations
-> Core principle: Risk boundaries are safety red lines; professional boundaries are cross-domain protections; neither is capability degradation
-> Design methodology: see [design-guides/boundary-design-guide.md](../design-guides/boundary-design-guide.md)
+> **Purpose**: Define the standard format for SKILL risk boundary and professional boundary declarations
+> **Core Principle**: Risk boundaries are safety red lines; professional boundaries are scope protection; neither is capability degradation
+> **Design Methodology**: See [design-guides/boundary-design-guide.md](../design-guides/boundary-design-guide.md)
 
 ---
 
 ## 1. Risk Boundary Declaration
 
-Risk boundary declarations are the non-negotiable safety red lines of a SKILL. Triggering any red line results in immediate task termination.
+Risk boundary declarations are the SKILL's inviolable safety red lines. Touching any red line immediately terminates the task.
 
-**Core constraints**:
-- Risk boundaries are safety brakes, declaring only safety red lines -- not doing harmful things.
-- Risk boundary numbering starts consecutively from `Risk Boundary-01`; the quantity is determined by domain safety requirements (typically 3-5 entries).
+**Core Constraints**:
+- Risk boundaries are safety brakes; they only declare safety red lines -- don't do harmful things.
+- Risk boundaries are numbered consecutively starting from `Risk Boundary-01`; the count is determined by domain safety requirements (typically 3-5 items).
 
-**Positive Example (Generic Template)**:
+**Correct Example (Generic Template)**:
 
-| No. | Declaration |
+| ID | Statement |
 |:---|:---|
-| Risk Boundary-01 | {A non-negotiable safety red line for this domain, e.g., "Do not generate executable malicious code"} |
-| Risk Boundary-02 | {A non-negotiable safety red line for this domain} |
-| Risk Boundary-03 | {A non-negotiable safety red line for this domain} |
+| Risk Boundary-01 | {Inviolable safety red line for this domain, e.g., "Do not generate executable malicious code"} |
+| Risk Boundary-02 | {Inviolable safety red line for this domain} |
+| Risk Boundary-03 | {Inviolable safety red line for this domain} |
 
-**Negative Example (Risk Boundary Abuse -> Anti-pattern 7)**:
+**Incorrect Example (Risk Boundary Abuse -> Anti-pattern 7)**:
 
 | Abusive Wording | Problem |
 |:---|:---|
@@ -33,34 +33,34 @@ Risk boundary declarations are the non-negotiable safety red lines of a SKILL. T
 
 ## 2. Professional Boundary Declaration
 
-Professional boundary declarations are the non-crossable professional limitations of a SKILL. Triggering any one halts the boundary-crossing behavior and explicitly notifies the user.
+Professional boundary declarations are the SKILL's inviolable professional scope limits. Touching any boundary terminates the boundary-crossing behavior and clearly informs the user.
 
-**Core constraints**:
+**Core Constraints**:
 - Professional boundaries prevent the SKILL from crossing into domains requiring professional qualifications (medical, legal, financial services, etc.).
-- Professional boundary numbering starts consecutively from `Professional Boundary-01`; the quantity is determined by domain scope (typically 1-3 entries).
+- Professional boundaries are numbered consecutively starting from `Professional Boundary-01`; the count is determined by domain scope (typically 1-3 items).
 
-**Positive Example (By Domain)**:
+**Correct Examples (by Domain)**:
 
-| No. | Declaration | Applicable Domain |
+| ID | Statement | Applicable Domain |
 |:---|:---|:---|
-| Professional Boundary-01 | Provides condition analysis reference only; cannot replace a doctor's prescription or diagnosis | Medical |
-| Professional Boundary-02 | Output is risk assessment reference; does not include specific buy/sell timing and price points | Financial |
-| Professional Boundary-03 | Provides legal knowledge explanation only; does not constitute formal legal opinion | Legal |
+| Professional Boundary-01 | Provides only condition analysis reference; cannot replace a doctor's prescription or diagnosis | Medical |
+| Professional Boundary-02 | Output is a risk assessment reference; does not include specific buy/sell timing or prices | Financial |
+| Professional Boundary-03 | Provides only legal knowledge explanation; does not constitute formal legal advice | Legal |
 
-**Negative Example (Capability Degradation Disguised as Professional Boundary)**:
+**Incorrect Examples (Capability Degradation Disguised as Professional Boundary)**:
 
 | Abusive Wording | Problem |
 |:---|:---|
-| Professional Boundary-01: Only do security review, not quality checks | Capability degradation (code errors found during security review should still be reported) |
-| Professional Boundary-02: Only check code style, do not analyze functional correctness | Capability degradation (functional issues found during style checks should still be flagged) |
+| Professional Boundary-01: Only perform security review, not quality check | Capability degradation (code errors found during security review should still be reported) |
+| Professional Boundary-02: Only check code style, not functional correctness analysis | Capability degradation (functional issues found during style checks should still be flagged) |
 
 ---
 
 ## 3. Completeness Checklist
 
-- [ ] All risk boundary declarations are safety red lines (no scope limitations or capability degradation); trigger results in termination
-- [ ] Risk boundary numbering starts consecutively from `Risk Boundary-01`
-- [ ] All professional boundary declarations are cross-domain protections (no safety declarations or capability degradation); trigger halts the boundary-crossing behavior
-- [ ] Professional boundary numbering starts consecutively from `Professional Boundary-01`
-- [ ] Risk boundaries and professional boundaries have no overlapping entries
+- [ ] Risk boundary declarations are all safety red lines (no scope restrictions or capability degradation); termination on touch
+- [ ] Risk boundary numbers are consecutive starting from `Risk Boundary-01`
+- [ ] Professional boundary declarations are all scope protection (no safety declarations or capability degradation); termination of boundary-crossing behavior on touch
+- [ ] Professional boundary numbers are consecutive starting from `Professional Boundary-01`
+- [ ] No overlapping items between risk boundaries and professional boundaries
 - [ ] No placeholder residue

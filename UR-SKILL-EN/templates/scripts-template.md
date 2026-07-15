@@ -1,12 +1,12 @@
-# Scripts File Template
+# Script File Template
 
-> Purpose: Defines the standard structure for script files under a generated SKILL's scripts/ directory
-> Core Principle: Scripts are read-only first; must annotate safety level and side effects; high-risk operations are prohibited
-> For design methodology details, see [design-guides/scripts-design-guide.md](../design-guides/scripts-design-guide.md)
+> **Purpose**: Define the standard structure for script files under the generated SKILL's scripts/ directory
+> **Core Principle**: Scripts are read-first by default; must annotate safety level and side effects; high-risk operations are prohibited
+> **Design Methodology**: See [design-guides/scripts-design-guide.md](../design-guides/scripts-design-guide.md)
 
 ---
 
-## 1. Script Header
+## 1. Script Header Information
 
 ```python
 #!/usr/bin/env python3
@@ -30,10 +30,10 @@ Date: {YYYY-MM-DD}
 
 | Principle | Requirement |
 |:---|:---|
-| Read-Only First | Prioritize reading; do not modify the filesystem |
-| Idempotency | Multiple executions produce the same result |
-| Self-Contained | No dependency on external environment |
-| Least Privilege | Request only necessary permissions |
+| Read-First | Prefer reading; do not modify the filesystem |
+| Idempotency | Consistent results on multiple executions |
+| Self-Contained | No external environment dependencies |
+| Least Privilege | Only request necessary permissions |
 | Input Validation | Validate all input; reject invalid input |
 
 ---
@@ -56,7 +56,7 @@ import os
 import re
 
 # Configuration
-SAFE_MODE = True  # True = read-only, False = allow write (requires manual confirmation)
+SAFE_MODE = True  # True=read-only, False=allows writes (requires human confirmation)
 
 
 def main():
@@ -68,8 +68,8 @@ def main():
 
 def validate_input():
     """Validate input"""
-    # Check if input exists
-    # Check if input format is valid
+    # Check that input exists
+    # Check that input format is valid
     # Reject invalid input
     pass
 
@@ -90,11 +90,11 @@ if __name__ == "__main__":
 
 | Type | Purpose | Safety Level |
 |:---|:---|:---:|
-| Scan Script | Static checking, identify issues | Safe |
-| Validation Script | Validate format, constraints, compliance | Safe |
-| Generation Script | Generate content, populate templates | Medium Risk |
-| Conversion Script | Format conversion, data migration | Medium Risk |
-| Deployment Script | Deploy to production environment | High Risk |
+| Scan script | Static check, identify issues | Safe |
+| Validation script | Validate format, constraints, compliance | Safe |
+| Generation script | Generate content, fill templates | Medium Risk |
+| Conversion script | Format conversion, data migration | Medium Risk |
+| Deployment script | Deploy to production environment | High Risk |
 
 ---
 
@@ -104,10 +104,10 @@ if __name__ == "__main__":
 - [ ] Script has side effect description
 - [ ] Script has input validation
 - [ ] Script does not perform high-risk operations (delete, write, network, system commands)
-- [ ] Script outputs to stdout, does not write files directly
+- [ ] Script outputs to stdout, does not directly write files
 - [ ] Script has error handling
 - [ ] Script has logging
-- [ ] Medium-risk and above scripts undergo manual review
-- [ ] Script is self-contained, no dependency on external environment
-- [ ] Script is idempotent; multiple executions produce the same result
+- [ ] Scripts at Medium Risk and above have undergone manual review
+- [ ] Script is self-contained, no external environment dependencies
+- [ ] Script is idempotent, consistent results on multiple executions
 - [ ] File < 200 lines

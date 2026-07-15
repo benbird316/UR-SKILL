@@ -44,13 +44,11 @@ class SkillContext:
     text: str
     path: Path
     config: dict[str, Any]
-    lines: list[str] = field(init=False)
     frontmatter: dict[str, Any] = field(init=False)
     body: str = field(init=False)
     fm_parse_errors: list[str] = field(init=False)
 
     def __post_init__(self) -> None:
-        self.lines = self.text.splitlines()
         self.frontmatter, self.body, self.fm_parse_errors = self._parse_frontmatter()
 
     def _parse_frontmatter(self) -> tuple[dict[str, Any], str, list[str]]:

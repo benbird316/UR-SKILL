@@ -167,7 +167,7 @@ All PRs automatically trigger GitHub Actions running the following checks:
 **All checks must pass before merging**. If validation fails:
 1. Check the CI logs to identify the issue
 2. Fix and push again
-3. If it's a false positive, modify the relevant `allowed_*` rules in `config.zh-cn.yaml` or `config.en-us.yaml`
+3. If it's a false positive, modify the relevant rules under `placeholders.allowed_patterns` or `placeholders.allowed_literals` in `config.zh-cn.yaml` or `config.en-us.yaml`
 
 ---
 

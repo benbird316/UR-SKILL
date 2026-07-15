@@ -1,18 +1,97 @@
 # Anti-Pattern Detection
 
-> Purpose: Defines common anti-patterns in SKILL generation and mitigation strategies
-> Core principle: Anti-patterns are practices that "appear correct but are actually harmful" and must be proactively sniffed out
+> **Purpose**: Define common anti-patterns in SKILL generation and mitigation strategies
+> **Core Principle**: Anti-patterns are practices that "appear correct but are actually harmful" — the developer chose an approach with good intentions but the result is worse
+> **This file is the UR-SKILL general anti-pattern library. When generating a specific SKILL, reference domain-specific anti-patterns as needed; do not duplicate the contents of this file.**
 
 ---
 
-## 1. 10 Anti-Patterns
+## 1. Anti-Pattern List
 
-| No. | Anti-Pattern | Manifestation | Harm | Detection Method | Mitigation Strategy |
-|:---|:---|:---|:---|:---|:---|
-| Anti-pattern 1 | Specification Overreach | Specification definitions (field constraints, format descriptions) placed directly into the body | Body bloat, violates progressive loading, reduces information density | Scan for specification tables like "| Field | Required | Constraint |", "| Facet | Scope |" | Delete specification tables, move them to references/; body retains only reference paths. 详见 [spec-design-guide.md](../design-guides/spec-design-guide.md) |
-| Anti-pattern 2 | Placeholder Residue | Unfilled content such as [xxx], TODO, FIXME, {to be filled} present in the body | Incomplete deliverable; user cannot use directly | Regex scan for \[.*\]\|TODO\|FIXME\|\{.*\} | Fill all completely, or delete the section and mark as blind spot. 详见 [spec-design-guide.md](../design-guides/spec-design-guide.md) |
-| Anti-pattern 3 | Example Pollution | Copying examples from references/ directly into the body | Body bloat, examples duplicate body content, violates progressive loading | Compare body content with references/examples.md; check for paragraphs with >80% duplication | Reference examples declaratively via paths to references/; body retains only reference declarations. 详见 [examples-design-guide.md](../design-guides/examples-design-guide.md) |
-| Anti-pattern 4 | Architecture Confusion | The capability matrix's radiating domains are aliases for workflow steps (e.g., mapping workflow steps A->B->C->D->E->F directly as "Domain 1->Domain 2->...") | Capability matrix becomes a mirror of the workflow, losing its identity as an independent knowledge system; SKILL structure is fundamentally wrong | Check if radiating domain names can be mapped to workflow step numbers; check if radiating domains have linear sequential relationships | Radiating domains in the capability matrix should be independent knowledge systems (e.g., "Requirements Engineering," "Role Capability Analysis," "Professional Risk Identification," "Professional Ethics," "System Awareness"), decoupled from workflow steps |
+### AP-01 Specification Overreach
+
+**Manifestation**: Specification definitions (field constraint tables, format descriptions, metadata specifications) are placed directly into the SKILL.md body instead of being pushed down to references/.
+
+**Why It Occurs**: Developers want information centralized so users can see all rules in one file without jumping between multiple files. They think "the specs are few, it's fine to put them in the body."
+
+**Harm**:
+- Body bloats, violating the progressive loading principle
+- Information in the middle region is diluted (Lost in the Middle effect)
+- Specifications and execution logic are mixed, reducing information density
+- During maintenance, modifying specs requires searching the body; modifying logic also requires searching the body — unclear responsibilities
+
+**Detection Method**: Scan the body for typical specification tables like "| Field | Required | Constraint |", "| Facet | Scope |"; count the proportion of table rows in the body.
+
+**Mitigation Strategy**:
+- Delete specification tables from the body; push them down to the corresponding file in references/
+- Body retains only reference declarations: `Read file: references/xxx-spec.md`
+- Place all specification content into dedicated spec reference files (output-spec.md or metadata-spec.md)
+
+---
+
+### AP-02 Placeholder Residue
+
+**Manifestation**: Unfilled placeholder markers such as `[xxx]`, `TODO`, `FIXME`, `{to be filled}`, `TBD`, `___` present in the body.
+
+**Why It Occurs**: Building the skeleton first and filling in content later is an efficient writing practice — developers use placeholders to mark "fill this in later"; or certain content genuinely requires user confirmation before it can be populated.
+
+**Harm**:
+- Deliverable is incomplete; the user cannot use it directly
+- At runtime, encountering placeholders may cause the model to hallucinate content or silently skip the affected section, producing incomplete output
+- Severely undermines the SKILL's professionalism and credibility
+
+**Detection Method**: Regex scan for `\[.*\]`, `TODO`, `FIXME`, `\{.*\}`, `TBD`, `_{3,}`, consecutive ellipsis patterns.
+
+**Mitigation Strategy**:
+- Fill all placeholders completely before delivery
+- If content genuinely cannot be determined → delete the entire section and record it as a blind spot entry (actions attempted + remaining blind spots + feasibility recommendations)
+- Delivery with placeholders is prohibited
+- Run `validate_skill.py` for automatic detection
+
+---
+
+### AP-03 Example Contamination
+
+**Manifestation**: Example content from `references/examples.md` is copied and filled directly into the SKILL.md body, resulting in content duplication between the two files.
+
+**Why It Occurs**: Developers think examples are important and placing them in the body makes them more visible to the model; or they worry the model won't proactively read references/, so they stuff examples into the body.
+
+**Harm**:
+- Body bloats, violating progressive loading
+- Content duplication doubles maintenance cost (changes must be synced across two locations)
+- Examples and logic are mixed, reducing body information density
+- Model attention is diluted by examples, causing core rules to be ignored
+
+**Detection Method**: Compare body content with `references/examples.md` for text overlap; check for paragraphs with >80% duplication.
+
+**Mitigation Strategy**:
+- Reference examples declaratively via paths pointing to references/
+- Body retains only reference paths: `Read file: references/examples.md — Purpose: input/output example reference`
+- The model loads example files on demand when executing the corresponding step
+
+---
+
+### AP-04 Architecture Confusion (Workflow Step Aliasing)
+
+**Manifestation**: Radiating domains in the capability matrix are aliases for workflow steps — domain names are verbs (analyze/execute/reflect/deliver), domains have strictly linear sequential relationships (A must complete before B, B before C).
+
+**Why It Occurs**: Developers think workflow steps naturally represent capabilities and one-to-one mapping is the clearest and most understandable. When designing, they follow the workflow linearly, naturally using step names as domain names.
+
+**Harm**:
+- The capability matrix becomes a mirror of the workflow, losing its identity as an independent knowledge system
+- Violates the core design principle "capability domain ≠ workflow step"
+- Domain knowledge cannot be invoked across steps, losing architectural flexibility
+- Fails all Three-Question Filter checks (Independence / Irreplaceability / Complementarity)
+
+**Detection Method**:
+1. Check if radiating domain names can be directly mapped to workflow step numbers
+2. Check if radiating domains have linear sequential dependency relationships
+3. Sort Test: if reordering the domain order breaks the logic → anti-pattern
+
+**Mitigation Strategy**:
+- Radiating domains should be independent knowledge bodies (nouns), not workflow steps (verbs)
+- Each domain must pass the Three-Question Filter: Independence / Irreplaceability / Complementarity
+- Any workflow step may invoke any radiating domain — no temporal dependencies
 
 > **Classic Case 1 (Anti-pattern 4)**: The UR-SKILL master SKILL once directly listed the following workflow steps as radiating domains:
 >
@@ -20,47 +99,190 @@
 > |:---|:---|
 > | A Semantic Parsing | Step 1 Parse |
 > | B Knowledge Retrieval | Step 2 Research |
-> | C Architecture Design | Step 3 Architect |
+> | C Architecture Design | Step 3 Architecture |
 > | D Content Engineering | Step 4 Execute (Module Assembly) |
 > | E Quality Assurance | Step 5 Verify |
 > | F Delivery Management | Step 7 Deliver |
 >
-> > **Classic Case 2 (Anti-pattern 4)**: pre-analysis-engineer once directly listed the following workflow steps as radiating domains:
+> > **Classic Case 2 (Anti-pattern 4)**: The research-analyst sub-SKILL once directly listed the following workflow steps as radiating domains:
 > >
 > > | Incorrect Radiating Domain (Workflow Alias) | Actual Corresponding Workflow Step |
 > > |:---|:---|
 > > | A Semantic Parsing | Step 1 Parse |
 > > | B Task Domain Research | Step 2 Research |
-> > | C Capability Domain Derivation | Step 3 Architect |
+> > | C Capability Domain Derivation | Step 3 Architecture |
 > > | D Complexity Determination | Step 4 Execute (Complexity Determination) |
 > > | E File Dependency Decision | Step 4 Execute (File Dependency Decision) |
 > > | F Output Structuring | Step 7 Deliver |
 >
-> **Detection Signal**: Radiating domains A->B->C->D->E->F strictly correspond one-to-one with workflow steps 1->2->3->4->5->6->7, and the domains have linear sequential relationships (B can only proceed after A completes). Correct radiating domains should be independent of each other with no temporal dependencies.
+> **Detection Signal**: Radiating domains A→B→C→D→E→F strictly correspond one-to-one with workflow steps 1→2→3→4→5→6→7, and the domains have linear sequential relationships (B can only proceed after A completes). Correct radiating domains should be independent of each other with no temporal dependencies.
 >
-> **Correct Approach**: Radiating domains should be independent knowledge bodies (nouns), not workflow steps (verbs). The UR-SKILL master SKILL was corrected to 6 domains: Requirements Engineering & Business Translation, SKILL Architecture Design, Prompt System Engineering, Quality Engineering, Ethics & Safety, Iterative Improvement. pre-analysis-engineer was corrected to 6 domains: Requirements Engineering, Role Capability Analysis, Capability Domain Information Evaluation, Professional Risk Identification, Professional Ethics, System Awareness. Domain selection rationale: see [../design-rationale/design-rationale.md sections 10-12](../design-rationale/design-rationale.md).
-| Anti-pattern 5 | Review Deficiency | Insufficient review dimension checks in the generated SKILL workflow (fewer than 6 dimensions for critical checkpoints) | Quality checks become ineffective; easy to settle for "good enough" | Scan each workflow step; check whether the number of review dimensions matches the checkpoint type | Allocate review dimensions by checkpoint type: 6 dimensions for critical checkpoints, 3 dimensions for non-critical checkpoints. 详见 [structure-guideline.md](../design-guides/structure-guideline.md) |
-| Anti-pattern 6 | Blind Spot Evasion | Blind spot identification only writes "limitations noted" without executing the three-tier mechanism investigation | Blind spots become disclaimers rather than drivers for continued optimization | Check whether blind spot identification includes "actions attempted for remediation and optimization + remaining blind spots + feasibility recommendations" | Enforce the three-tier mechanism: investigate and optimize -> request resources -> blind spot report + feasibility recommendations. 详见 [structure-guideline.md](../design-guides/structure-guideline.md) |
-| Anti-pattern 7 | Risk Boundary Abuse | Risk boundary declarations are written as capability degradation (e.g., "not responsible for security review," "only do intent recognition") rather than safety red lines; or professional boundaries are written into risk boundary declarations | Risk boundaries shift from safety brakes to disclaimers, or confuse safety and scope responsibility boundaries | Check whether risk boundary declarations contain capability degradation language ("not responsible for," "only do X not Y") or professional boundary content | Risk boundaries only declare safety red lines (illegal/public order violations, discrimination, attack/injection/jailbreak, etc.); professional boundaries go into a separate professional boundary declaration. 详见 [boundary-design-guide.md](../design-guides/boundary-design-guide.md) |
-| Anti-pattern 8 | Facet Padding | Capability facet content uses generic boilerplate without task anchoring (e.g., "Facet 2 Deep Knowledge: Master relevant domain knowledge," "Facet 3 Risk Identification: Identify potential risks") | Facets lose specificity; they apply to any SKILL, making them effectively unwritten | Check whether facet content includes task-specific domain knowledge (e.g., tool names, specification names, vulnerability types) | Each facet MUST include the specific knowledge stack for that core domain, e.g., "Master OWASP Python Top 10," "Proficient in PEP 8 conventions". 详见 [capability-design-guide.md](../design-guides/capability-design-guide.md) |
-| Anti-pattern 9 | Blind Spot Blame-Shifting | Blind spot declarations jump directly from Tier 1 to Tier 3 (purely declarative), e.g., "Blind spots may exist; results are for reference only," "Please verify before use" | Blind spot declarations become disclaimer clauses rather than drivers for capability improvement | Check whether blind spot declarations lack the "actions attempted" field; check for blame-shifting language like "for reference only," "please verify yourself" | Blind spots must first be investigated and optimized (Tier 1); if still insufficient, request resources (Tier 2); if no resources are available, report (Tier 3), with report format: "actions attempted + remaining blind spots + feasibility recommendations". 详见 [structure-guideline.md](../design-guides/structure-guideline.md) |
-| Anti-pattern 10 | Capability Degradation | Professional boundary declarations are written as capability reduction (e.g., "only review incremental code, not old code," "only identify, do not analyze," "do not handle complex scenarios") rather than defining true professional scope | SKILL delivery quality is constrained and lowered by its own boundary declarations; issues that should have been found are concealed due to "boundary limitations," leading to hidden bugs and technical debt accumulation | Check whether professional boundary declarations contain "only do X not Y" capability reduction language, or abandonment-style descriptions like "do not handle," "not responsible for" | Professional boundaries only declare scope attribution ("do not perform fixes or patch authoring"); do not lower delivery quality due to boundary declarations. Boundary-exceeding tasks identified should undergo tracking analysis, determine root cause, and be output to the blind spot report, rather than being abandoned outright. 详见 [boundary-design-guide.md](../design-guides/boundary-design-guide.md) |
-| Anti-pattern 11 | Step Name Mismatch in Global Rules | The global execution rules list node names (e.g., "Parsing") that do not match the actual step headings (e.g., "Pre-Analysis"); designers tend to reuse agent SKILL step names thinking they are equivalent to the main SKILL's delegated function — but they are different structural contexts | The model applies the wrong review dimensions — a step may receive 6-dimension scrutiny intended for Critical nodes (wasting tokens) or 3-dimension review for a Critical node (missing quality gates) | (1) Cross-reference each step heading's `[xxx Checkpoint]` label against the global rule's node list; (2) Check if any name in the global rule list does not appear verbatim as a step heading; (3) Check if any node appears in both Critical and Non-Critical lists | (1) Every node name in the global rule MUST exactly match a step heading label; (2) No node should appear in both lists; (3) After fixing, re-validate with validate_skill.py. 详见 [structure-guideline.md](../design-guides/structure-guideline.md) |
+> **Correct Approach**: Radiating domains should be independent knowledge bodies (nouns), not workflow steps (verbs). The UR-SKILL master SKILL's 6 domains: Requirements Engineering & Business Translation, SKILL Architecture Design, Prompt System Engineering, Quality Engineering, Ethics & Safety, Iterative Improvement. The research-analyst sub-SKILL's 6 domains: Requirements Engineering (requirement parsing & implicit assumption identification), Job Competency Analysis (KSAO model mapping), Information Source Assessment (three-level source anchoring), Occupational Risk Identification, Professional Ethics, System Cognition (UR-SKILL methodology internalization). Domain selection rationale: see [../design-rationale/design-rationale.md §10-§12](../design-rationale/design-rationale.md).
+
+---
+
+### AP-05 Review Deficiency
+
+**Manifestation**: Critical node checklists (Research, Planning, Verify, Validation) contain fewer than 6 review dimensions — only 3-4 dimensions such as Goal Alignment and Fact Anchoring are checked, and others are skipped.
+
+**Why It Occurs**: Developers think non-critical steps don't need so many checks, or want to speed things up with "good enough." Alternatively, they misjudge which nodes are critical.
+
+**Harm**:
+- Quality gates fail; key decision points lack sufficient review
+- Prone to "good enough" delivery, with no lower quality boundary
+- Blind spots, direction deviations, and factual errors slip through at critical nodes, amplifying downstream
+
+**Detection Method**: Scan each workflow step's checklist; cross-reference the node type (critical/non-critical) to verify the number of review dimensions matches.
+
+**Mitigation Strategy**:
+- Critical nodes (Research/Planning/Verify/Validation/Loop Decision): all 6 dimensions enabled — Goal Alignment, Fact Anchoring, Direction Calibration, Adversarial Validation, Blind Spot Identification, Impact Projection
+- Non-critical nodes (Parse/Coordinate/Dispatch/Consolidate/Execute/Assemble): 3 dimensions — Goal Alignment, Fact Anchoring, Blind Spot Identification
+- All 6 dimensions must appear; none may be skipped
+
+---
+
+### AP-06 Blind Spot Evasion
+
+**Manifestation**: Blind spot identification only states "limitations noted" or "deficiencies exist," with no follow-up action — identified blind spots are left unaddressed as the process moves to the next step.
+
+**Why It Occurs**: Developers think identifying the blind spot is sufficient notification, and the user can handle it. Or they don't know how to address the blind spot, so they mark it and skip.
+
+**Harm**:
+- Blind spots become disclaimers rather than drivers for capability improvement
+- Every encounter with the same blind spot results in no progress, preventing iterative improvement
+- Delivery quality stagnates at the current level with no growth path
+
+**Detection Method**: Check whether blind spot identification contains only declarative statements without "actions attempted," "resource requests," or "feasibility recommendations."
+
+**Mitigation Strategy**:
+- Enforce the three-layer blind spot mechanism:
+  1. Layer 1: Investigate and analyze; attempt self-optimization to fill the blind spot
+  2. Layer 2: If still insufficient → request resource supplementation from the user
+  3. Layer 3: If no resources available → output a blind spot handling report (actions attempted + remaining blind spots + feasibility recommendations)
+- Pure declarative blind spots are prohibited
+
+---
+
+### AP-07 Risk Boundary Abuse
+
+**Manifestation**: Risk boundary declarations are written as capability degradation — containing phrasing like "not responsible for security review," "only performs intent recognition," "does not provide professional advice"; or professional boundary content is placed into risk boundaries.
+
+**Why It Occurs**: Developers want to draw clear boundaries and avoid liability, thinking the more conservative the safer. Or they confuse "safety red lines" with "capability scope," putting everything they'd rather not do into risk boundaries.
+
+**Harm**:
+- Risk boundaries shift from safety brakes to disclaimers
+- Blurs the distinction between safety red lines and professional boundaries
+- Critical safety red lines are left unclear, while capabilities that should not be restricted are cut
+
+**Detection Method**: Check risk boundary declarations for capability degradation phrasing ("not responsible for," "only does X not Y," "does not fall under"); check whether they contain professional scope descriptions.
+
+**Mitigation Strategy**:
+- Risk boundaries only declare safety red lines: illegal activity, public order and morals, discrimination, attack, injection, jailbreak, malicious use, etc.
+- Professional scope goes into a separate "Professional Boundary" declaration
+- Each risk boundary declaration must contain at least 1 safety keyword
+
+---
+
+### AP-08 Facet Filler
+
+**Manifestation**: Capability facets are filled with generic boilerplate, such as "Facet 2 Knowledge Deepening: Master relevant domain knowledge," "Facet 3 Risk Identification: Identify potential risks" — covering the task name, you cannot tell what SKILL this is for.
+
+**Why It Occurs**: Rapid template filling — developers think "roughly the right idea is fine," or they don't know what specific content to write and use generic descriptions as a fallback.
+
+**Harm**:
+- Facets lose specificity; they apply to any SKILL, making them effectively unwritten
+- The capability matrix has no task anchoring, resulting in insufficient quality depth
+- The model receives no domain knowledge guidance from the facets during execution
+
+**Detection Method**: Veil Test — cover the facet content; can you infer the core task of this SKILL? If not → facet filler anti-pattern.
+
+**Mitigation Strategy**:
+- Each facet MUST include the specific knowledge stack for that core domain
+- Positive example: "Master OWASP Python Top 10, PEP 8 conventions, CWE Top 25"
+- Negative example: "Master relevant domain knowledge"
+
+---
+
+### AP-09 Blind Spot Buck-Passing
+
+**Manifestation**: Blind spot declarations jump directly from Layer 1 to Layer 3 (purely declarative), writing "blind spots may exist; results are for reference only," "please verify before use," "accuracy not guaranteed" — buck-passing language.
+
+**Why It Occurs**: Developers want to honestly disclose limitations, fear misleading users or taking responsibility, and think writing "for reference only" fulfills their duty.
+
+**Harm**:
+- Blind spot declarations become disclaimer clauses rather than drivers for capability improvement
+- Every time, the blind spot is passed off without ever attempting optimization
+- User trust declines, feeling the SKILL is unreliable
+
+**Detection Method**: Check whether blind spot declarations lack an "actions attempted" field; check for buck-passing language like "for reference only," "please verify yourself," "may exist," "no guarantee."
+
+**Mitigation Strategy**:
+- Blind spots must first be investigated and optimized (Layer 1); if still insufficient, request resources (Layer 2); if no resources are available, report (Layer 3)
+- Layer 3 report format: actions attempted + remaining blind spots + feasibility recommendations
+- Remove all buck-passing language
+
+---
+
+### AP-10 Capability Degradation
+
+**Manifestation**: Professional boundary declarations are written as capability reduction — containing phrasing like "only review incremental code, not legacy," "only identify, do not analyze," "do not handle complex scenarios" — at runtime, the model cites its own boundaries to refuse tasks it should perform.
+
+**Why It Occurs**: Developers want to simplify the delivery process and avoid wasting resources; or they fear poorly handling complex scenarios and directly exclude them in the boundary to avoid errors.
+
+**Harm**:
+- SKILL delivery quality is self-neutered by its own boundary declarations
+- Issues that should have been found are concealed due to "boundary limitations," leading to hidden bugs and technical debt accumulation
+- Professional boundaries shift from "cross-boundary protection" to "self-limitation"
+
+**Detection Method**: Scan professional boundary declarations for capability reduction keywords: "only does X not Y," "does not handle," "not responsible for," "limited to."
+
+**Mitigation Strategy**:
+- Professional boundaries only declare **operation attribution** (e.g., "do not perform code fixes or patch authoring"), without limiting the review scope
+- If genuinely out-of-scope scenarios exist → output to the blind spot report (tracking analysis + root cause + recommendations) and continue delivering the rest
+- Do not lower delivery quality due to boundary declarations
+
+---
+
+### AP-11 Step Name Mismatch in Global Rules
+
+**Manifestation**: Node names listed in the global execution rules (e.g., "Verify") do not match the actual step headings (e.g., "Step 10: Quality Check") — the node name does not appear verbatim in the step heading, preventing rule binding.
+
+**Why It Occurs**: When step headings are modified, the global rule list is not synced; or developers think "roughly the same meaning is fine," without awareness of exact matching.
+
+**Harm**:
+- The model applies the wrong review dimensions to a step: non-critical nodes receive 6-dimension review (wasting tokens), or critical nodes receive 3-dimension review (missing quality gates)
+- Global rules become ineffective, failing to provide unified constraints
+- Review quality varies unevenly across steps
+
+**Detection Method**:
+1. Cross-reference each step heading's `[xxx Node]` label against the global rule's node list
+2. Check if any node name in the global rule does not appear verbatim in a step heading
+3. Check if any node appears in both critical and non-critical lists
+
+**Mitigation Strategy**:
+- Every node name in the global rule MUST exactly match the step heading label (verbatim)
+- No node should appear in both critical and non-critical lists simultaneously
+- After fixing, re-validate with `validate_skill.py`
+
+---
 
 ## 2. Detection Priority
 
-Scan order (high priority -> low priority):
+Scan order (high priority → low priority):
 
-1. Anti-pattern 2 Placeholder Residue (directly impacts usability, Critical)
-2. Anti-pattern 1 Specification Overreach (directly impacts architectural correctness, High)
-3. Anti-pattern 7 Risk Boundary Abuse (directly impacts security design, High)
-4. Anti-pattern 9 Blind Spot Blame-Shifting (directly impacts delivery credibility, High)
-5. Anti-pattern 10 Capability Degradation (directly impacts delivery quality, High)
-6. Anti-pattern 4 Architecture Confusion (directly impacts structural correctness, Medium)
-7. Anti-pattern 8 Facet Padding (directly impacts quality depth, Medium)
-8. Anti-pattern 3 Example Pollution (directly impacts loading efficiency, Medium)
-9. Anti-pattern 5 Review Deficiency (directly impacts quality checks, Medium)
-10. Anti-pattern 6 Blind Spot Evasion (directly impacts delivery quality, Low)
+| Priority | Anti-Pattern | Severity | Rationale |
+|:---:|:---|:---:|:---|
+| 1 | AP-02 Placeholder Residue | Critical | Directly impacts usability; deliverable incomplete |
+| 2 | AP-01 Specification Overreach | High | Directly impacts architectural correctness; body bloat |
+| 3 | AP-07 Risk Boundary Abuse | High | Directly impacts security design; boundary confusion |
+| 4 | AP-09 Blind Spot Buck-Passing | High | Directly impacts delivery credibility; disclaimer-like declarations |
+| 5 | AP-10 Capability Degradation | High | Directly impacts delivery quality; self-neutering |
+| 6 | AP-04 Architecture Confusion | Medium | Directly impacts structural correctness; capability matrix fails |
+| 7 | AP-08 Facet Filler | Medium | Directly impacts quality depth; capabilities unanchored |
+| 8 | AP-03 Example Contamination | Medium | Directly impacts loading efficiency; content duplication |
+| 9 | AP-05 Review Deficiency | Medium | Directly impacts quality checks; gate failure |
+| 10 | AP-11 Step Name Mismatch | Medium | Directly impacts rule binding; review dimension misalignment |
+| 11 | AP-06 Blind Spot Evasion | Low | Directly impacts continuous optimization; iteration stagnation |
 
 > Priority logic: Usability impact > Safety/professionalism impact > Quality depth impact > Continuous optimization impact.
 
@@ -68,4 +290,4 @@ Scan order (high priority -> low priority):
 
 ## 3. Scan Script
 
-Scan script implementation: see [scripts/validate_skill.py](../Scripts/validate_skill.py); script design specification: see [design-guides/anti-patterns-design-guide.md section 6](../design-guides/anti-patterns-design-guide.md).
+Automated scan implementation: see [scripts/validate_skill.py](../Scripts/validate_skill.py); script design specification: see [design-guides/pattern-ref-design-guide.md §3](../design-guides/pattern-ref-design-guide.md).

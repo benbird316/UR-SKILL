@@ -1,15 +1,15 @@
-# Assets File Template
+# Asset File Template
 
-> Purpose: Defines the standard structure for static resource files under a generated SKILL's assets/ directory
-> Core Principle: Asset files are copyable, fillable, version-consistent static content; they are not executable
-> For design methodology details, see [design-guides/assets-design-guide.md](../design-guides/assets-design-guide.md)
+> **Purpose**: Define the standard structure for static resource files under the generated SKILL's assets/ directory
+> **Core Principle**: Asset files are static content that can be copied, filled, and version-consistent; they are not executable
+> **Design Methodology**: See [design-guides/assets-design-guide.md](../design-guides/assets-design-guide.md)
 
 ---
 
-## 1. Asset Header
+## 1. Asset Header Information
 
 ```markdown
-# {Asset Name} Template
+# {Resource Name} Template
 
 > Purpose: {One-sentence description of purpose}
 > Version: {Version number / YYYY-MM-DD}
@@ -39,19 +39,19 @@
 
 | Placeholder | Type | Constraint | Required |
 |:---|:---|:---|:---:|
-| `{{name}}` | string | kebab-case, <= 64 chars | MUST |
-| `{{description}}` | string | <= 1024 chars, starts with "Use when..." | MUST |
-| `{{type}}` | string | Fixed: "prompt" / "tool" / "hybrid" | MUST |
+| `{{name}}` | string | kebab-case, <= 64 characters | MUST |
+| `{{description}}` | string | <= 1024 characters, start with "Use when..." | MUST |
+| `{{type}}` | string | Fixed "prompt" / "tool" / "hybrid" | MUST |
 | `{{updated}}` | string | YYYY-MM-DD format | MUST |
 
 ---
 
-## 4. Fill Rules
+## 4. Filling Rules
 
-- **MUST** fill all MUST placeholders; unfilled = invalid output
+- **MUST** fill all MUST placeholders; unfilled output is invalid
 - **MUST** validate that filled values meet constraints
-- **MAY** fill optional placeholders; unfilled placeholders retain default values
-- **MUST NOT** fill invalid values
+- **MAY** fill optional placeholders; unfilled ones retain default values
+- **MUST NOT** fill illegal values
 
 ---
 
@@ -59,18 +59,18 @@
 
 | Version Strategy | Format | Applicable Scenario |
 |:---|:---|:---|
-| Semantic Versioning | MAJOR.MINOR.PATCH | Complex assets, frequent changes |
-| Date Versioning | YYYY-MM-DD | Simple assets, infrequent changes |
+| Semantic versioning | MAJOR.MINOR.PATCH | Complex resources, frequent changes |
+| Date versioning | YYYY-MM-DD | Simple resources, low-frequency changes |
 
 ---
 
 ## 6. Completeness Checklist
 
-- [ ] Template structure is verifiable (JSON Schema / XML Schema / YAML Lint)
+- [ ] Template structure is validatable (JSON Schema / XML Schema / YAML Lint)
 - [ ] All placeholders have definitions (name, type, constraint, required)
-- [ ] Placeholder names follow conventions (double braces, kebab-case, semantic, unique)
-- [ ] Fill rules are explicit (required/optional, validation method, default value)
+- [ ] Placeholder naming follows conventions (double curly braces, kebab-case, semantic, unique)
+- [ ] Filling rules are clear (required/optional, validation method, default values)
 - [ ] Template has a version number
 - [ ] No nested placeholders
-- [ ] No logic expressions
+- [ ] No logical expressions
 - [ ] File < 200 lines

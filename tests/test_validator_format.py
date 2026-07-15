@@ -70,7 +70,8 @@ body
         findings = validator_format._validate_frontmatter(ctx, zh_config)
         assert any(f.rule == "description-length" for f in findings)
 
-    def test_invalid_type(self, zh_config) -> None:
+    def test_invalid_type_no_longer_validated(self, zh_config) -> None:
+        """type 字段不再由 _validate_frontmatter 校验（新 schema 已移除）。"""
         text = """---
 name: my-skill
 description: 这是一个用于测试的 SKILL 描述，长度需要满足最低要求，所以这里需要写够五十个字符以上来通过校验。
@@ -84,7 +85,8 @@ body
 """
         ctx = SkillContext(text=text, path=Path("/fake/SKILL.md"), config=zh_config)
         findings = validator_format._validate_frontmatter(ctx, zh_config)
-        assert any(f.rule == "invalid-type" for f in findings)
+        # type 校验已从 schema 中移除，不再产生 "invalid-type" 规则
+        assert not any(f.rule == "invalid-type" for f in findings)
 
     def test_metadata_updated_missing(self, zh_config) -> None:
         text = """---
@@ -271,8 +273,8 @@ body
         violations = [f for f in findings if f.rule == "schema-violation"]
         assert len(violations) > 0, f"Expected schema violations for old format, got {findings}"
 
-    def test_missing_metadata_type_fails(self, zh_config, scripts_dir) -> None:
-        """缺少 metadata.type 被 JSON Schema 拒绝。"""
+    def test_missing_metadata_type_passes_schema(self, zh_config, scripts_dir) -> None:
+        """metadata.type 不再被 schema 要求（新 schema 简化后仅要求 metadata.updated）。"""
         text = """---
 name: my-skill
 description: 这是一个用于测试的 SKILL 描述，长度需要满足最低要求，所以这里需要写够五十个字符以上来通过校验。
@@ -286,7 +288,7 @@ body
         ctx = SkillContext(text=text, path=scripts_dir / "SKILL.md", config=zh_config)
         findings = validator_format._validate_json_schema(ctx)
         violations = [f for f in findings if f.rule == "schema-violation"]
-        assert len(violations) > 0
+        assert len(violations) == 0, f"Expected no schema violations for missing metadata.type, got {findings}"
 
     def test_our_cn_skill_passes(self, zh_config, scripts_dir) -> None:
         """UR-SKILL-CN 自身的 SKILL.md 通过 JSON Schema 校验。"""

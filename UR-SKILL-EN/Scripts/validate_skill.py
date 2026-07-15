@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""SKILL 静态校验脚本。
+"""SKILL static validation script.
 
-用途：在交付前自动检查 SKILL.md 的格式、内容、引用一致性与反模式。
-核心原则：所有规则必须可程序化验证，避免人工逐行检查。
+Purpose: Automatically check SKILL.md format, content, reference consistency,
+and anti-patterns before delivery.
+Core principle: All rules must be programmatically verifiable, avoiding manual
+line-by-line review.
 
-用法：
-    python validate_skill.py --skill-dir ../ --lang zh-cn
-    python validate_skill.py --skill-dir ../ --lang en-us --format json
+Usage:
+    python validate_skill.py --skill-dir ../ --lang en-us
+    python validate_skill.py --skill-dir ../ --lang zh-cn --format json
 """
 
 from __future__ import annotations
@@ -29,24 +31,24 @@ VALIDATORS = [
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="校验 SKILL.md 质量")
+    parser = argparse.ArgumentParser(description="Validate SKILL.md quality")
     parser.add_argument(
         "--skill-dir",
         type=Path,
         default=Path("."),
-        help="SKILL 目录（包含 SKILL.md 与 references/）",
+        help="SKILL directory (containing SKILL.md and references/)",
     )
     parser.add_argument(
         "--lang",
         choices=["zh-cn", "en-us"],
-        default="zh-cn",
-        help="校验规则语言",
+        default="en-us",
+        help="Validation rule language",
     )
     parser.add_argument(
         "--format",
         choices=["text", "json"],
         default="text",
-        help="输出格式",
+        help="Output format",
     )
     args = parser.parse_args()
 
@@ -55,7 +57,7 @@ def main() -> int:
 
     skill_file = args.skill_dir / "SKILL.md"
     if not skill_file.exists():
-        msg = config.get("messages", {}).get("skill_file_not_found", "错误：未找到 {path}")
+        msg = config.get("messages", {}).get("skill_file_not_found", "Error: {path} not found")
         print(msg.format(path=skill_file), file=sys.stderr)
         return 1
 
@@ -66,7 +68,7 @@ def main() -> int:
     for validator in VALIDATORS:
         findings.extend(ctx.run(validator))
 
-    # frontmatter 解析错误也加入 findings
+    # frontmatter parse errors also added to findings
     for err in ctx.fm_parse_errors:
         findings.insert(0, Finding("frontmatter-parse", err, "error"))
 

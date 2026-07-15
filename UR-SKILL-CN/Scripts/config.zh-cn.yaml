@@ -14,40 +14,43 @@ frontmatter:
     name: str
     description: str
     metadata: dict
-  valid_types:
-    - prompt
-    - tool
-    - hybrid
   metadata:
     updated_required: true
     updated_format: "%Y-%m-%d"
 
 # 工作流步骤配置
 workflow:
-  step_heading_pattern: '^#{2,4}\s*\d+\.\s*(\S+?)\s*[（(].*?[）)].*?维.*$'
+  step_heading_pattern: '^#{3,5}\s*步骤\s*\d+[：:]\s*(\S+?)\s*[（(].*?[）)].*?维.*$'
   step_names:
     - 解析
-    - 前置分析
+    - 协调
+    - 分发
     - 调研
-    - 架构
+    - 规划
+    - 汇总
     - 执行
-    - 交付
     - 校验
     - 验证
+    - 循环判定
+    - 组装
   expected_checks:
-    解析: 3
-    前置分析: 4
+    解析: 4
+    协调: 4
+    分发: 4
     调研: 7
-    架构: 7
+    规划: 7
+    汇总: 4
     执行: 4
-    交付: 4
     校验: 7
-    验证: 8
+    验证: 7
+    循环判定: 0
+    组装: 4
   critical_steps:
     - 调研
-    - 架构
+    - 规划
     - 校验
     - 验证
+    - 循环判定
   required_dimensions:
     - 目标对齐
     - 事实锚定
@@ -58,7 +61,7 @@ workflow:
     - 影响推演
 
 rules:
-  rules_heading_pattern: '^#{2,3}\s*(?:\d+\.?\s*)?(?:核心)?规则.*$'
+  rules_heading_pattern: '^#{2,3}\s*(?:\d+\.?\s*)?(?:(?:核心)?规则|[Rr]ules).*$'
   rfc2119_keywords:
     - MUST
     - MUST NOT
@@ -113,10 +116,10 @@ rules:
 # 占位符检测
 placeholders:
   general_patterns:
-    - '\[(?!认知操作\])(?![^\]]*\]\()[^\]]*\]'
+    - '\[(?!认知操作\]|Cognitive\s+(?:Op|Operation)\])(?![^\]]*\]\()[^\]]*\]'
     - '\{.*?\}'
-    - 'TODO|FIXME|XXX|HACK'
-  # 来自 output-template.md 的必须填充占位符
+    - 'TODO|FIXME|XXX\s*:|HACK'
+  # 来自 skill-template.md 的必须填充占位符
   unresolved_patterns:
     - pattern: '\{kebab-case-name\}'
       label: name 占位符
@@ -169,6 +172,19 @@ placeholders:
     - "[参数]"
     - "[操作]"
     - "{date}"
+    # 已知工具名（中文）
+    - "[联网搜索]"
+    - "[联网抓取]"
+    - "[文件读取]"
+    - "[文件写入]"
+    - "[文本搜索]"
+    # 内部标记格式
+    - "[Low]"
+    - "[Medium]"
+    - "[High]"
+    - "[Inferred: confidence low]"
+    - "[Translator's note: ...]"
+    - "[来源, 置信度]"
 
 # 工具绑定
 tools:
@@ -199,7 +215,7 @@ tools:
     - ur-skill
     - ur-skill-cn
     - ur-skill-en
-    - pre-analysis-engineer
+    - research-analyst
   # 看起来像动作但可豁免的动词前缀
   exempt_action_prefixes:
     - 读取
@@ -250,7 +266,7 @@ output_spec:
     severity:
       label: 问题分级
       patterns:
-        - (极危|高危|中危|低危|Critical|High|Medium|Low).*级
+        - (极危|高危|中危|低危|Critical|High|Medium|Low)
     interaction:
       label: 用户交互模式
       patterns:
@@ -261,7 +277,7 @@ output_spec:
     decision:
       label: 判决策略
       patterns:
-        - 判决策略|阻断.*合入|建议.*合入
+        - 判决策略|阻断.*合入|建议.*合入|Decision Strategy|Reject|Approved
         - 通过\|需修改\|阻断
 
 # 身份声明
@@ -292,23 +308,52 @@ self_contained:
     - design-rationale/
     - Scripts/
   special_files:
-    - References/pre-analysis.md
     - agent/SKILL.md
   exempt_skills:
     - ur-skill
     - ur-skill-cn
     - ur-skill-en
-    - pre-analysis-engineer
+    - research-analyst
 
 # 文件依赖决策检查
 file_dependency:
   workflow_heading: '^#{2,3}\s*(?:\d+\.?\s*)?工作流'
   indicators:
     - 文件依赖决策
-    - pre-analysis.md §2
-    - pre-analysis.md#2
+    - 文件依赖声明
     - design-rationale.md §9
     - design-rationale.md#9
+
+# 能力-工作流混淆检测
+capability_workflow_boundary:
+  # 在工作流区域检测不应出现的"能力矩阵"术语
+  workflow_forbidden_terms:
+    - 能力矩阵
+    - 核心领域
+    - 辐射领域
+    - 能力切面
+    - 领域融合
+    - identity.*capability
+  # 在能力区域检测不应出现的"工作流"术语
+  capability_forbidden_terms:
+    - 步骤\d+
+    - Step\s*\d+
+    - 工作流
+    - Workflow
+    - 检查项
+    - checklist
+
+# 语义对齐检测
+semantic_alignment:
+  # 能力矩阵中提取的领域关键词，需在工作流动作中出现
+  min_matched_domains: 1
+
+# 工具引用表检测
+tool_reference_table:
+  patterns:
+    - 工具.*表
+    - Tool.*(Reference|Table|Map)
+    - 工具.*引用
 
 # 引用目录
 reference_dirs:
@@ -331,8 +376,7 @@ messages:
   frontmatter_wrong_type: "frontmatter 字段 {field} 类型错误，期望 {expected}"
   frontmatter_dict_required: "frontmatter 字段 {field} 必须是字典"
   name_not_kebab: "name '{name}' 不是合法 kebab-case"
-  description_length: "description 长度 {length} 不在 {min}-{max} 范围内"
-  type_invalid: "type '{type}' 不是合法值 {valid_types}"
+  description_length: "description 长度 {length} 超限 ({min}-{max})"
   metadata_updated_missing: "metadata.updated 缺失"
   metadata_updated_format: "metadata.updated '{updated}' 不是 YYYY-MM-DD 格式"
   body_too_long: "body 行数 {lines} 超过阈值 {max_lines}"
@@ -361,11 +405,15 @@ messages:
   asset_missing: "引用的 asset 文件不存在: {path}"
   design_guide_missing: "引用的 design-guide 文件不存在: {path}"
   template_missing: "引用的 template 文件不存在: {path}"
-  file_dependency_missing: "文件依赖决策缺失：工作流中未发现文件依赖决策指令（应添加 '文件依赖决策' 或引用 pre-analysis.md §2 或 design-rationale.md §9）"
+  file_dependency_missing: "文件依赖决策缺失：工作流中未发现文件依赖决策指令（应添加 '文件依赖决策' 或引用 design-rationale.md §9）"
   tool_binding_missing: "工具绑定缺失：以下动作未绑定工具（格式 [工具名] 操作 → 输出），但同 SKILL 的其他动作已绑定工具：\n{lines}"
   output_spec_missing: "审查/测试类 SKILL 缺少 {label}：未检测到 {patterns} 相关模式"
   ur_skill_leak: "UR-SKILL 文件引用泄漏: 生成 SKILL 中引用了 '{path}'，违反了自包含规则（MUST NOT 引用 UR-SKILL 内部文件）"
   unresolved_placeholder: "占位符未填充: 发现 {count} 处 '{label}'"
+  capability_workflow_confusion: "能力-工作流混淆: {section} 区域出现了 '{term}'，能力矩阵与工作流必须严格分离"
+  capability_workflow_confused_terms: "能力-工作流混淆: {section} 区域出现了 {count} 个不应出现的术语: {terms}"
+  tool_reference_table_missing: "工具引用表缺失: 工作流使用了工具绑定但未建立工具引用表（应包含'工具引用表'或类似标识）"
+  semantic_alignment_weak: "语义对齐弱: {matched}/{total} 个能力领域术语未出现在工作流动作中 ({unmatched})，建议加强语义一致性"
   validation_failed: "校验失败：发现 {count} 个问题"
   validation_passed: "校验通过"
   skill_file_not_found: "错误：未找到 {path}"

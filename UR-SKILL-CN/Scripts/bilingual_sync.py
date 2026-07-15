@@ -51,6 +51,9 @@ def main(base_dir: Path | None = None) -> int:
         "Scripts/config.zh-cn.yaml",
         "Scripts/config.en-us.yaml",
         "Scripts/bilingual_sync.py",
+        ".pytest_cache/",
+        "examples/",              # CN 放根级别, EN 放 References/ 内
+        "References/examples.md", # EN 放 References/ 内, CN 在 examples/examples.md
     ]
 
     cn_files = collect_relative_files(cn_dir, skip)
@@ -82,7 +85,7 @@ def main(base_dir: Path | None = None) -> int:
         cn_size[f] = (cn_dir / f).stat().st_size
         en_size[f] = (en_dir / f).stat().st_size
 
-    size_diff = {f for f in common_files if abs(cn_size.get(f, 0) - en_size.get(f, 0)) > 0}
+    size_diff = {f for f in common_files if abs(cn_size.get(f, 0) - en_size.get(f, 0)) > 50}
     if size_diff:
         print(f"\n[INFO] Files with size difference (may need sync):")
         for f in sorted(size_diff):

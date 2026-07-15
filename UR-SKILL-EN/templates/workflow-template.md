@@ -1,100 +1,235 @@
 # Workflow Template
 
-> Purpose: Defines the standard fill-in format for SKILL workflow steps
-> Core principle: Each step contains actions, a checklist, and reference files; actions bind to specific tools; checklist is based on review dimensions
-> Design methodology: see [design-guides/tool-invocation-design-guide.md](../design-guides/tool-invocation-design-guide.md)
-> Review dimension definitions: see [design-rationale/design-rationale.md section 4](../design-rationale/design-rationale.md)
+> **Purpose**: Define the standard filling format for SKILL workflow steps
+> **Core Principle**: The workflow consists of 4 master nodes; sub-nodes are selected on demand. Each step includes actions, a checklist, and reference files.
+> **Design Methodology**: See [design-guides/workflow-design-guide.md](../design-guides/workflow-design-guide.md)
 
 ---
 
-## 1. Step Structure Template
+## 1. Workflow Skeleton
 
 ```markdown
-#### {N}. {Step Name}【{Checkpoint Type}, {N} dimensions】
+## Workflow
+
+### Analyze
+
+{Select on demand: Parse, Coordinate, Research, Planning}
+
+### Execute
+
+{MUST include the "Execute" sub-node; select on demand: Dispatch, Consolidate}
+
+### Reflect
+
+{MUST include the "Decide" sub-node; select on demand: Verify, Validation}
+
+### Deliver
+
+{Direct action, no sub-nodes}
+```
+
+---
+
+## 2. Sub-Step Template
+
+Each sub-step (including Delivery) is filled in using the following format:
+
+```markdown
+#### {N}. {Step Name}【{Gate/Execute}, {N} dims】
 
 **Actions**:
-1. [{Tool Name}] {Operation description} -> Declare **{Radiating Domain} - {Tier}**: {Output artifact}
-2. [Cognitive Op] {Cognitive operation description} -> Activate **{Radiating Domain} - {Tier}**: {Specific output}
-3. [{Tool Name} (-> {Fallback Tool})] {Operation description} -> Declare **{Radiating Domain} - {Tier}**: {Output artifact}
+1. [{Tool Name}] {Operation description} -> Declare **{Radiating Domain}·{Layer}**: {Deliverable}
 
-**Core Command**: Confirm...
+**Core Command**: Confirm {check item}
 
 **Checklist**:
-- [ ] Goal Alignment: ...
-- [ ] Fact Anchoring: ...
-- [ ] Direction Calibration: ... (applicable to critical checkpoints)
-- [ ] Adversarial Validation: ... (applicable to critical checkpoints)
+- [ ] Goal Alignment: {Whether the step's goal has been achieved}
+- [ ] Fact Anchoring: {Whether the referenced information is real and traceable}
+{Gate nodes append the following 4 items:}
+- [ ] Direction Calibration: {Whether the plan aligns with the initial goal}
+- [ ] Adversarial Validation: {Whether there are counterexamples or edge cases}
+- [ ] Impact Projection: {The cascading impact of the current decision on subsequent steps}
 - [ ] Blind Spot Identification: ...
   - Blind Spot Handling: (Actions attempted) / (Remaining blind spots) / (Feasibility recommendations)
-- [ ] Impact Projection: ... (applicable to critical checkpoints)
-- [ ] Risk Boundary Triggered: (Yes/No) -> Yes -> Terminate
 
--> Any unconfirmed -> Remediate -> Return to confirm -> All confirmed -> Proceed to {N+1}
+-> Any unconfirmed -> Remediate -> Re-check -> All confirmed -> Proceed to Step {N+1}
 
 **Reference Files**: {references/...}
 ```
 
-> Checkpoint types and review dimensions: Critical checkpoints (Research, Architect, Verify, Validate) use all 6 dimensions; Non-critical checkpoints (Parse, Execute, Deliver) use 3 dimensions (Goal Alignment, Fact Anchoring, Blind Spot Identification). See [design-rationale/design-rationale.md section 4](../design-rationale/design-rationale.md).
+---
+
+## 3. Filling Guidelines
+
+| Element | Guideline | Example |
+|:---|:---|:---|
+| Step name | Verb-first, no more than 4 characters in Chinese (or concise English) | Parse, Research, Planning, Execute, Verify, Validation, Decide |
+| Actions | Verb-first, has a deliverable; executable actions bind a tool or annotate `[Cognitive Operation]`, declare domain·layer | `[Read] Read requirement input -> Declare **Requirements Engineering·Foundation Layer**: Requirement summary` |
+| Core Command | Imperative, "Confirm..." | Confirm information is sufficient to support plan design |
+| Checklist | Gate nodes fill all 6 items; execution nodes fill only Goal Alignment, Fact Anchoring, Blind Spot Identification (3 items) | -- |
+| Reference Files | Plural form `references/` | references/verification-patterns.md |
 
 ---
 
-## 2. Action Format
+## 4. Action Format
 
 | Action Type | Format | Example |
 |:---|:---|:---|
 | Tool operation | `[{Tool Name}] {Operation} -> {Output}` | `[Read] Read requirement input -> Extract task type` |
-| Cognitive operation | `[Cognitive Op] {Description} -> Activate **{Domain} - {Tier}**: {Output}` | `[Cognitive Op] Extract Prompt based on Schema design -> Activate **B Entity Extraction - Advanced Tier**: Output triples` |
-| Fallback operation | `[{Tool Name} (-> {Fallback})] {Operation} -> {Output}` | `[WebSearch (-> WebFetch)] Search industry standards -> Obtain domain knowledge` |
-
-> Tool binding specification: see [design-guides/tool-invocation-design-guide.md](../design-guides/tool-invocation-design-guide.md).
+| Cognitive operation | `[Cognitive Operation] {Description} -> Activate **{Domain}·{Layer}**: {Output}` | `[Cognitive Operation] Extract Prompt from Schema -> Activate **Entity Extraction·Expert Layer**: Triplets` |
+| Degradation operation | `[{Tool Name} (↘ {Degradation})] {Operation} -> {Output}` | `[WebSearch (↘ WebFetch)] Search industry standards -> Obtain domain knowledge` |
 
 ---
 
-## 3. Complexity and Step Count
+## 5. Examples
 
-| Complexity | Step Count |
-|:---|:---:|
-| Simple | 3-5 steps |
-| Medium | 5-7 steps |
-| Complex | 7+ steps |
+### 5.1 Full-Featured Example (Meta-SKILL)
 
-> The difference between Simple and Medium is the step count, not the review dimensions.
+```markdown
+## Workflow
 
----
+### Analyze
 
-## 4. Blind Spot Three-Tier Mechanism
+#### 1. Parse (Requirement Analysis)【Execute, 3 dims】
+**Actions**:
+1. [Read] Read user input -> Declare **Requirements Engineering·Foundation Layer**: Task summary (type/domain/delivery form)
+**Core Command**: Confirm task type and domain are clear
+**Checklist**:
+- [ ] Goal Alignment: Extracted task type, domain, delivery form
+- [ ] Fact Anchoring: Input information is real and traceable
+- [ ] Blind Spot Identification: No ambiguity, no supplementation needed
+-> All confirmed -> Proceed to 2
+**Reference Files**: --
 
-After blind spot identification, the following mechanism MUST be applied progressively:
+#### 2. Coordinate (Task Decomposition)【Execute, 3 dims】
+...
 
-| Tier | Action | Output |
-|:---|:---|:---|
-| Tier 1 | Investigate and analyze -> Self-optimize and fill | Optimization complete, return to confirm |
-| Tier 2 | Still insufficient -> Request resources | Continue optimizing after resource supplementation, return to confirm |
-| Tier 3 | No resource supplementation -> Output blind spot handling report | Actions attempted + Remaining blind spots + Feasibility recommendations, return to confirm |
+#### 3. Research (Domain Knowledge)【Gate, 6 dims】
+...
 
-> Jumping directly from Tier 1 to Tier 3 is prohibited. See [design-rationale/design-rationale.md section 7](../design-rationale/design-rationale.md).
+#### 4. Planning (Plan Design)【Gate, 6 dims】
+...
 
----
+### Execute
 
-## 5. Fill-in Specification
+#### 5. Dispatch (Delegate to Sub-Agent)【Execute, 3 dims】
+...
 
-| Element | Specification | Example |
-|:---|:---|:---|
-| Step name | Begins with a verb, no more than 8 characters | Parse, Research, Architect, Execute, Verify, Validate, Deliver |
-| Action | Begins with a verb, has an output artifact; executable actions MUST bind to a tool or be labeled as a cognitive operation, and declare capability domain - tier | `[Read] Read user requirements -> Declare **Requirements Engineering - Foundation Tier**: Requirements summary` |
-| Core command | Imperative sentence, "Confirm..." | Confirm that the information is sufficient to support complexity determination |
-| Reference files | Plural form references/ | design-rationale/design-rationale.md |
+#### 6. Execute (Core Output)【Execute, 3 dims】
+...
+
+#### 7. Consolidate (Artifact Merging)【Execute, 3 dims】
+...
+
+### Reflect
+
+#### 8. Verify (Quality Check)【Gate, 6 dims】
+...
+
+#### 9. Validation (Adversarial Testing)【Gate, 6 dims】
+...
+
+#### 10. Decide (Gate Decision)【Gate, 6 dims】
+**Actions**:
+1. [Cognitive Operation] Check verification and validation results item by item -> Activate **Quality Engineering·Expert Layer**: Pass/Fail judgment
+**Core Command**: Confirm all gate conditions are satisfied
+**Checklist**:
+- [ ] Goal Alignment: Output matches initial requirements
+- [ ] Fact Anchoring: Sources referenced are traceable
+- [ ] Direction Calibration: Plan has not deviated
+- [ ] Adversarial Validation: Edge cases have been covered
+- [ ] Blind Spot Identification: Blind spots and their handling outcomes declared
+- [ ] Impact Projection: No residual risk after delivery
+-> Pass -> Proceed to Deliver / Fail -> Return for Fixes
+**Reference Files**: references/anti-patterns.md
+
+### Deliver
+
+#### 11. Deliver (Final Output)【Execute, 3 dims】
+**Actions**:
+1. [Write] Write final file per output template -> Declare **Output Engineering·Foundation Layer**: Artifact file
+**Core Command**: Confirm output is complete and correctly formatted
+**Checklist**:
+- [ ] Goal Alignment: Output structure matches output specification
+- [ ] Fact Anchoring: Content based on previously confirmed information
+- [ ] Blind Spot Identification: No omissions
+-> Delivery complete
+**Reference Files**: references/output-spec.md
+```
+
+### 5.2 Simplified Example (Dialogue-Guided SKILL)
+
+```markdown
+## Workflow
+
+### Analyze
+
+#### 1. Parse Intent【Execute, 3 dims】
+**Actions**:
+1. [Cognitive Operation] Analyze user input -> Activate **Dialogue Engineering·Foundation Layer**: Intent classification
+**Core Command**: Confirm user intent is clear
+**Checklist**:
+- [ ] Goal Alignment: Intent classification is correct
+- [ ] Fact Anchoring: Based on actual input
+- [ ] Blind Spot Identification: No ambiguity
+-> All confirmed -> Proceed to 2
+**Reference Files**: --
+
+### Execute
+
+#### 2. Generate Response【Execute, 3 dims】
+**Actions**:
+1. [Cognitive Operation] Generate response based on intent type -> Activate **Dialogue Engineering·Advanced Layer**: Response draft
+**Core Command**: Confirm response matches intent
+**Checklist**:
+- [ ] Goal Alignment: Response matches intent
+- [ ] Fact Anchoring: Content is substantiated
+- [ ] Blind Spot Identification: No unsafe content
+-> All confirmed -> Proceed to 3
+**Reference Files**: --
+
+### Reflect
+
+#### 3. Decide (Safety Review)【Gate, 6 dims】
+**Actions**:
+1. [Cognitive Operation] Scan response content -> Activate **Safety Engineering·Foundation Layer**: Safety determination
+**Core Command**: Confirm no unsafe content
+**Checklist**:
+- [ ] Goal Alignment: Intent is not distorted
+- [ ] Fact Anchoring: References are accurate
+- [ ] Direction Calibration: Response has not gone off course
+- [ ] Adversarial Validation: Malicious input has been blocked
+- [ ] Blind Spot Identification: No residual risks
+- [ ] Impact Projection: Output has no safety concerns
+-> Pass -> Deliver / Fail -> Return for regeneration
+**Reference Files**: references/content-safety.md
+
+### Deliver
+
+#### 4. Output Response【Execute, 3 dims】
+**Actions**:
+1. [Cognitive Operation] Output final response -> Activate **Dialogue Engineering·Foundation Layer**: User-visible response
+**Core Command**: Confirm output is complete
+**Checklist**:
+- [ ] Goal Alignment: Output is the final response
+- [ ] Fact Anchoring: Content has been validated
+- [ ] Blind Spot Identification: No omissions
+-> Delivery complete
+**Reference Files**: --
+```
 
 ---
 
 ## 6. Completeness Checklist
 
-- [ ] Each step contains the three elements: actions, checklist, reference files
-- [ ] Each step has only 1 core command
-- [ ] Simple SKILL: 3-5 steps, Medium: 5-7 steps, Complex: 7+ steps
-- [ ] Review dimensions are allocated by checkpoint type (critical checkpoints: 6 dimensions, non-critical: 3 dimensions)
-- [ ] Executable actions are bound to at least one specific tool (format: `[Tool Name] Operation -> Declare **{Domain} - {Tier}**: Output`) or labeled as `[Cognitive Op] -> Activate **{Domain} - {Tier}**: Output`
-- [ ] Critical tool invocations have fallback paths documented
-- [ ] Blind spot identification is followed by concrete action (Investigate and optimize / Request resources / Blind spot report + Feasibility recommendations)
-- [ ] When unconfirmed, execute remediation actions; forcibly proceeding to the next step is prohibited
-- [ ] Reference file paths use plural form (references/)
+- [ ] All 4 master nodes complete (Analyze, Execute, Reflect, Deliver)
+- [ ] Execute master node contains the "Execute" sub-node (required)
+- [ ] Reflect master node contains the "Decide" sub-node (required)
+- [ ] Remaining sub-nodes selected on demand (check against [workflow-design-guide.md §2](../design-guides/workflow-design-guide.md#2-子节点按需选配) conditions item by item)
+- [ ] Gate nodes (Research, Planning, Verify, Validation, Decide) have all 6 dimensions open
+- [ ] Execution nodes (Parse, Coordinate, Dispatch, Execute, Consolidate, Deliver) have 3 dimensions
+- [ ] Each step has Actions, Core Command, Checklist, Reference Files
+- [ ] Each step has only 1 Core Command
+- [ ] Executable actions are bound to a tool or annotated as Cognitive Operation
+- [ ] Gate node blind spot items include three-layer handling actions
+- [ ] Reference file paths use the plural form

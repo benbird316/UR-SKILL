@@ -1,111 +1,93 @@
 # Capability Architecture Design Guide
 
-> Purpose: Explains how to design capability matrices, capability facets, and boundary declarations. Answers "why design it this way" and "how to determine if the design is correct."
-> Core Principle: The capability matrix represents capability domains, not workflow steps; capability facets apply only to the core domain; boundary declarations are divided into safety red lines and scope protection.
+> Only teaches how to design the capability matrix, capability facets, and boundary declarations. The capability matrix consists of capability domains, not workflow steps; capability facets target only the core domain; boundary declarations are divided into safety red lines and scope protection.
+> For determining capability architecture design needs, see skill-package-design-guide.md §2.
 
 ---
 
-## 1. The Capability Matrix Represents Capability Domains, Not Workflow Steps
+## §1 Capability Matrix is Capability Domains, Not Workflow Steps
 
-> Core rationale: see [design-rationale/design-rationale.md SS1](../design-rationale/design-rationale.md#L8)
+### 1.1 Key Distinction Methods
 
-### 1.1 Key Differentiation Method
+**Sort Test**: Rearrange the candidate radiating domains; if the logic breaks, they are workflow steps.
 
-Use the Ordering Test and Three-Question Screening to determine whether a candidate domain is a capability domain or a workflow step.
+**Three-Question Filter**: Ask each candidate domain:
+1. **Independence**: Can it be defined independently from other domains?
+2. **Irreplaceability**: Would the core task fail to complete without it?
+3. **Complementarity**: Is it in a parallel collaboration relationship with other domains, rather than a sequential dependency?
 
-**Ordering Test**: Rearrange the candidate radiating domains. If the logic collapses, they are workflow steps.
+**Counterexample**: Candidate domains A Parse Requirements -> B Retrieve Information -> C Generate Report; after reordering, logic breaks -> they are workflow steps.
+**Positive Example**: A Static Analysis / B Security Audit / C Performance Diagnostics; still valid after reordering -> they are capability domains.
 
-**Three-Question Screening**: For each candidate domain, ask:
-1. **Independence**: Can it be defined in isolation from other domains?
-2. **Irreplaceability**: Would its absence prevent the core task from being completed?
-3. **Complementarity**: Does it have a parallel, collaborative relationship with other domains, rather than a sequential dependency?
+> Pure reasoning-type capabilities are mapped to `[Cognitive Operation]`; see tool-invocation-design-guide.md §1 for details.
 
-**Counterexample**: Candidate domains A Parse Requirements → B Retrieve Materials → C Generate Report. After reordering, the logic collapses → they are workflow steps.
-**Correct Example**: A Static Analysis / B Security Audit / C Performance Diagnosis. After reordering, they still hold → they are capability domains.
+### 1.2 Number of Domains Determined by Task Analysis
 
-### 1.2 Domain Count Is Determined by Task Analysis
-
-> Core rationale and complete determination method: see [design-rationale/design-rationale.md SS2](../design-rationale/design-rationale.md#L16)
-
-The recommended number of radiating domains is **3-8**. The specific count is determined by task analysis. Use the Ordering Test and Three-Question Screening to ensure each radiating domain is an independent and complementary capability domain, not a workflow step.
+The recommended number of radiating domains is **3-8**, determined by task analysis. Use the Sort Test and Three-Question Filter to ensure each radiating domain is an independent and complementary capability domain, not a workflow step.
 
 ---
 
-## 2. Capability Matrix Depth Is Fixed at 4 Layers
+## §2 Capability Matrix Depth: Fixed at 4 Layers
 
-> Core rationale: see [design-rationale/design-rationale.md SS3](../design-rationale/design-rationale.md#L32)
-
-Each domain is fixed at **4 layers of depth** (Foundation, Advanced, Expert, Extension), not tied to SKILL complexity. When filling in, ensure each layer has specific descriptions of the corresponding capability level for that domain.
+Each domain has a fixed **4-layer depth** (Foundation, Advanced, Expert, Extension); no layer may be omitted. When filling, ensure each layer has a concrete description of the corresponding capability level for that domain.
 
 ---
 
-## 3. Capability Facets Apply Only to the Core Domain
+## §3 Capability Facets Target Only the Core Domain
 
-Capability facets characterize the capability dimensions the core domain needs to possess. They are not duplicated for every radiating domain.
+Capability facets describe the capability dimensions that the core domain must possess; they are not redundantly built for every radiating domain.
 
 | Facet | Core Question |
 |:---|:---|
-| Efficiency & Cost | Is the resource investment reasonable? |
-| Deep Knowledge | Is knowledge coverage complete? |
+| Efficiency & Cost | Is resource investment reasonable? |
+| Knowledge Deepening | Is knowledge coverage complete? |
 | Risk Identification | What are the potential risks? |
-| Quality Verification | Is the output quality reliable? |
-| Domain Integration | Are the domains coordinated with each other? |
-| Global System | Has the global impact been considered? |
+| Quality Inspection | Is output quality reliable? |
+| Domain Fusion | Do the domains collaborate effectively? |
+| System-Wide Perspective | Has the global impact been considered? |
 
-**Task Anchoring Requirement**: Each facet MUST contain specific knowledge for that core domain. Generic boilerplate like "master relevant domain knowledge" or "identify potential risks" is not acceptable.
+**Task Anchoring Requirement**: Each facet must contain concrete knowledge specific to the core domain; generic boilerplate such as "master relevant domain knowledge" or "identify potential risks" is not acceptable.
 
-**Verification Method**: Cover up the task name in the facet content. If you can still determine which task it belongs to → unqualified. If you cannot determine it after covering → qualified.
+**Verification Method**: Cover the task name in the facet content; if you can still identify the task -> unqualified; if you cannot -> qualified.
 
 ---
 
-## 4. Three-Layer Relationship
+## §4 Three-Level Relationship
 
-| Layer | Form | Question Answered |
+| Level | Form | Question Answered |
 |:---|:---|:---|
-| Capability Matrix | Matrix (core domain + radiating domains x 4 depth layers) | "What capabilities are there" / "How deep are the capabilities" |
-| Capability Facets | List (6 facets, core domain only) | "What capability dimensions does the core domain need" |
-| Workflow | Vertical progression (steps → actions → checklists) | "How to execute" |
+| Capability Matrix | Matrix (Core Domain + Radiating Domains x 4 Layers) | "What capabilities exist?" / "How deep are the capabilities?" |
+| Capability Facets | List (6 facets, targeting only the core domain) | "What capability dimensions must the core domain possess?" |
+| Workflow | Vertical progression (Step -> Action -> Checklist) | "How to execute?" |
 
-The three are not interchangeable. If capability facets overlap with the capability matrix, the facet design is wrong. If the capability matrix overlaps with workflow steps, the matrix design is wrong (Anti-pattern 4: architectural confusion).
-
----
-
-## 5. Boundary Declarations
-
-Boundary declarations are divided into Risk Boundaries (safety red lines) and Professional Boundaries (scope protection). For detailed design methods, see [design-guides/boundary-design-guide.md](../design-guides/boundary-design-guide.md).
-
-### 5.1 Risk Boundaries
-
-- **Essence**: "Do no harm"
-- **Nature**: Safety-related; upon triggering, the task terminates immediately
-- **Count**: Determined by domain safety requirements, typically 3-5 items
-
-### 5.2 Professional Boundaries
-
-- **Essence**: "Do not operate beyond professional boundaries"
-- **Nature**: Scope-related; upon triggering, the boundary-crossing behavior terminates and the user is informed
-- **Count**: Determined by domain scope, typically 1-3 items
+The three levels do not substitute for each other. If capability facets overlap with the capability matrix, the capability facet design is wrong; if the capability matrix overlaps with workflow steps, the capability matrix design is wrong (Anti-pattern 4: Architecture Confusion).
 
 ---
 
-## 6. Common Errors
+## §5 Boundary Declarations
+
+For full definitions, format specifications, and positive/negative examples of boundary declarations, see [boundary-design-guide.md](boundary-design-guide.md).
+
+---
+
+## §6 Common Errors
 
 | Error | Problem | Correction |
 |:---|:---|:---|
-| Disguising workflow steps as capability domains | The capability matrix becomes an execution sequence | Run the Ordering Test and Three-Question Screening; rename to professional domain names |
-| Writing 6 facets for every radiating domain | Information overload, diluted attention | Capability facets apply only to the core domain |
-| Writing risk boundaries as capability degradation | Safety brakes become disclaimers | Only declare safety red lines. Move "won't do X/Y" into capability scope description or delete |
-| Filling facets with generic boilerplate | Loses task anchoring | Each facet must include specific tool names/standard names/vulnerability types |
+| Disguising workflow steps as capability domains | Capability matrix becomes execution order | Execute Sort Test and Three-Question Filter, rename to professional domain names |
+| Writing 6 facets for every radiating domain | Information explosion, attention dilution | Capability facets target only the core domain |
+| Risk boundary written as capability degradation | Safety brake becomes disclaimer | Only declare safety red lines; "don't do X, don't do Y" goes into capability scope description or is deleted |
+| Facets filled with generic boilerplate | Loses task anchoring | Each facet includes concrete tool names / specification names / vulnerability types |
 
 ---
 
-## 7. Checklist
+## §7 Checklist
 
 - [ ] Capability matrix covers all core requirements
-- [ ] Radiating domains pass the Ordering Test and Three-Question Screening
-- [ ] Capability matrix is NOT an alias for workflow steps
-- [ ] Each domain has complete 4-layer depth
-- [ ] 6 capability facets, core domain only
-- [ ] Each facet is task-anchored, free of generic boilerplate
-- [ ] Risk boundaries are safety red lines, free of capability degradation
-- [ ] Professional boundaries are scope protection, free of capability degradation
+- [ ] Radiating domains pass the Sort Test and Three-Question Filter
+- [ ] Capability matrix is not an alias for workflow steps
+- [ ] Each domain has all 4 layers complete
+- [ ] 6 capability facets, targeting only the core domain
+- [ ] Each facet has task anchoring, no generic boilerplate
+- [ ] Risk boundaries are safety red lines, no capability degradation
+- [ ] Professional boundaries are scope protection, no capability degradation

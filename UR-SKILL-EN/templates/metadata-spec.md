@@ -1,78 +1,57 @@
 # Metadata Specification
 
-> Purpose: Defines fields, types, constraints, and examples for SKILL.md YAML frontmatter
-> Core Principle: Frontmatter is the trigger layer and identity layer of a SKILL; it must be concise, mechanically parsable, and trigger-friendly
 > Standards compliant: [agentskills.io Specification](https://agentskills.io/specification)
+> Core Principle: Minimalist. Interoperable with all platforms, introduce no platform-specific fields.
 
 ---
 
 ## Field Definitions
 
-### Required Fields (agentskills.io Standard)
-
-| Field | Type | Required | Constraints | Description |
+| Field | Location | Required | Constraint | Description |
 |:---|:---|:---:|:---|:---|
-| `name` | string | Yes | 1–64 chars, kebab-case, lowercase only, no spaces; must match parent directory name | Unique SKILL identifier |
-| `description` | string | Yes | 1–1024 chars; strongly recommended to start with `Use when...`; covers capability + trigger scenario | Trigger condition and capability description |
+| `name` | Top-level | Yes | 1-64 characters, kebab-case, all lowercase, must match parent directory name | SKILL unique identifier. Required by agentskills.io standard. |
+| `description` | Top-level | Yes | 1-1024 characters; recommended to start with `Use when...` | **The only field used for trigger matching.** All platforms use this field to decide whether to load the SKILL. Should cover both capability description and trigger scenarios. |
+| `metadata.updated` | Inside metadata | Yes | Format `YYYY-MM-DD` | Last updated date. Two purposes: (1) version change tracking; (2) helps the LLM perceive data freshness and determine whether domain knowledge might be outdated. Required by UR-SKILL convention. |
 
-### Optional Fields (agentskills.io Standard)
-
-| Field | Type | Required | Constraints | Description |
-|:---|:---|:---:|:---|:---|
-| `license` | string | No | SPDX identifier or license filename, recommend ≤50 chars | License declaration |
-| `compatibility` | string | No | 1–500 chars, declares required environment | Compatibility notes (platform, Python version, etc.) |
-| `metadata` | dict | **Yes** | Must contain at least `updated` field | Arbitrary key-value pairs for extensions |
-| `allowed-tools` | string | No | Space-separated tool names (experimental field) | Pre-approved tool whitelist |
-
-### UR-SKILL Custom Fields (stored under `metadata`)
-
-| Field | Type | Required | Constraints | Description |
-|:---|:---|:---:|:---|:---|
-| `metadata.type` | string | Yes | Enum: `prompt` / `tool` / `hybrid` | SKILL type (UR-SKILL custom) |
-| `metadata.whenToUse` | string | Yes | English, 20–100 chars, specific scenario | Supplementary trigger scenario (UR-SKILL custom) |
-| `metadata.updated` | string (date) | Yes | Format `YYYY-MM-DD` | Last updated date |
-
-> **Design Principle**: The agentskills.io standard only requires `name` and `description`. `metadata` carries UR-SKILL's own extension fields (`type`, `whenToUse`) without affecting standard compliance.
-
----
-
-## Constraints
-
-- `description` should be slightly **pushy**: while describing capabilities, proactively cover synonymous expressions users might use, reducing undertrigger probability.
-- `metadata.type` determines subsequent output structure:
-  - `prompt`: Pure prompt SKILL, no scripts/resources.
-  - `tool`: Contains executable scripts or MCP calls.
-  - `hybrid`: Prompt + scripts/resources hybrid.
-- `license`: Recommend using standard SPDX identifiers (e.g., `Apache-2.0`, `MIT`).
-- `compatibility`: Only needed when the SKILL has special environment requirements; most SKILLs don't need it.
-- Do not introduce undeclared fields in frontmatter to avoid parsing failures.
+> **Those three fields, and nothing more.**
 
 ---
 
 ## Examples
 
-### Minimal Example (agentskills.io compliant)
+### UR-SKILL Itself
+
+```yaml
+---
+name: ur-skill-cn
+description: "Use whenever the user wants to create, design, standardize, or package a SKILL.md file, AI agent skill, or structured system prompt. Invoke even if they don't explicitly say 'SKILL'. Chinese version."
+metadata:
+  updated: 2026-07-09
+---
+```
+
+### General Skill Example
 
 ```yaml
 ---
 name: python-code-review
 description: "Use when the user wants to review Python code for quality, security, style, or performance. Invoke for code inspection, bug hunting, refactoring suggestions."
+metadata:
+  updated: 2026-07-14
 ---
 ```
 
-### Full Example (UR-SKILL Recommended)
+### Sub-Skill Example (Inline Invocation)
 
 ```yaml
 ---
-name: python-code-review
-description: "Use when the user wants to review Python code for quality, security, style, or performance. Invoke for code inspection, bug hunting, refactoring suggestions, or CI-ready linting tasks."
-license: Apache-2.0
-compatibility: Requires Python 3.12+
-allowed-tools: Read Write Grep Glob RunCommand
+name: research-analyst
+description: >-
+  Use when analyzing user requirements, optimizing existing SKILLs, extracting knowledge from knowledge bases, or localizing external SKILLs.
+  Supports four modes (A/B/C/D), outputs a unified pre-analysis report.
+  Mode A is typically invoked inline by UR-SKILL; Modes B/C/D can be triggered independently or invoked inline.
 metadata:
   updated: 2026-07-09
-  type: prompt
-  whenToUse: When the user needs to review Python code quality, security vulnerabilities, code style, or performance
 ---
 ```
 
@@ -80,7 +59,7 @@ metadata:
 
 ## Validation Rules
 
-- `name` must match regex `^[a-z0-9]+(?:-[a-z0-9]+)*$`
-- `description` length must be 1–1024 characters
-- `metadata.type` must be one of `prompt` / `tool` / `hybrid`
-- `metadata.updated` must be a valid date `YYYY-MM-DD`
+- `name` MUST match the regex `^[a-z0-9]+(?:-[a-z0-9]+)*$`
+- `description` length MUST be between 1-1024 characters
+- `metadata.updated` MUST be a valid date in `YYYY-MM-DD` format
+- No undeclared top-level fields are allowed

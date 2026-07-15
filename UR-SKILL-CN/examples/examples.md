@@ -1,140 +1,144 @@
 # 示例
 
-> 用途：展示 UR-SKILL 在不同复杂度下的输出形态
-> 核心原则：示例只展示结构与关键设计决策，不替代 references/ 中的模板
+> 用途：UR-SKILL 自带的真实生产级示例，全部由 UR-SKILL 方法论设计并通过验证，可直接参考或复用
+> 核心原则：示例是完整可运行的 SKILL / Agent，不是结构示意图
 
 ---
 
-## 示例 1：简单 SKILL（无 references/）
+## 示例总览
 
-**用户输入**：
-> 写一个把自然语言描述转成 Python 函数名的 SKILL。
-
-**核心任务**：标识符生成工程
-
-**输出结构**：
-
-```yaml
----
-name: pythonize-name
-description: "Use when converting a natural language description into a valid Python function or variable name. Invoke for naming helpers, refactoring suggestions, or API method naming."
-metadata:
-  updated: 2026-07-09
-  type: prompt
-  whenToUse: 当用户想把自然语言描述转成合法的 Python 函数名或变量名时
----
-```
-
-```markdown
-# pythonize-name
-
-> 角色：你是 Python 命名工程师。将自然语言描述转换为符合 PEP 8 的函数/变量名。
-
-## 能力矩阵
-
-**核心领域**：标识符生成工程
-
-| 领域 | 基础层 | 进阶层 | 高阶层 | 拓展层 |
+| 示例 | 位置 | 类型 | 特点 | 适合参考 |
 |:---|:---|:---|:---|:---|
-| 核心：标识符生成工程 | 识别关键词 | 去停用词与缩写 | 处理多义词与歧义 | 推断项目命名风格 |
+| 调查分析师 Agent | `agent/research-analyst.md` | 子 Agent（单文件） | 聚焦联网调研与信息综合，标准 4 主节点工作流 | 子 Agent 设计、调研类技能、门控节点写法 |
+| 技术文档工程师 Agent | `agent/tech-documentation.md` | 子 Agent（单文件） | 聚焦结构化文档生成，能力矩阵 + 输出规范完整 | 文档类技能、输出规格设计 |
+| 脚本工程师 Agent | `agent/script-engineer.md` | 子 Agent（单文件） | 聚焦代码生成与验证，风险边界严格 | 代码类技能、安全边界设计、校验节点 |
+| UR-SKILL 自身 | 当前安装的语言目录 | 完整 SKILL 包（SKILL.md + design-guides/ + templates/ + References/ + agent/ + Scripts/） | 13 步工作流 + 3 Agent + 15+ 设计指南 + 9 模板 + 运行时参考，由自身方法论生成并通过自校验 | 完整 SKILL 包结构、能力矩阵四层设计、工作流门控、自包含引用
 
-**辐射领域**：
+---
 
-| 领域 | 基础层 | 进阶层 | 高阶层 | 拓展层 |
-|:---|:---|:---|:---|:---|
-| 需求解析 | 提取动作与对象 | 识别隐含参数 | 处理否定与条件 | 推断用户真实意图 |
-| B 命名规范 | 掌握 PEP 8 | 区分 public/private | 处理缩写与首字母 | 适配团队约定 |
-| C 格式约束 | 转小写/下划线 | 处理特殊字符 | 截断超长名称 | 保证可读性 |
+## 示例 1：调查分析师 Agent（子 Agent）
 
-## 工作流
+**位置**：`agent/research-analyst.md`
 
-1. 解析（3 维）：提取原始描述与约束
-2. 执行（3 维）：生成候选名称
-3. 校验（6 维）：检查 PEP 8、可读性、唯一性
-4. 交付（3 维）：输出排序后的候选列表
+**核心领域**：联网调查分析工程
 
-## 规则
+**参考价值**：
+- 子 Agent 的标准单文件结构
+- 调研类技能的能力矩阵设计
+- 门控节点（调研、校验、验证）的 6 维检查清单写法
+- 来源分级与交叉验证方法论
 
-- **MUST** 输出小写下划线格式
-- **MUST NOT** 使用 Python 保留字
-- **SHOULD** 优先使用动词开头
+**结构特点**：单文件 SKILL，无独立 references/，全部知识内联。适合任务单一、领域知识量不大的场景。
 
-## 风险边界声明
+---
 
-| 编号 | 声明 |
-|:---|:---|
-| 风险边界-01 | 不生成侮辱性、歧视性或违法名称 |
-| 风险边界-02 | 不生成可能造成安全误导的名称 |
-| 风险边界-03 | 不执行任何外部代码 |
+## 示例 2：技术文档工程师 Agent（子 Agent）
+
+**位置**：`agent/tech-documentation.md`
+
+**核心领域**：技术文档生成工程
+
+**参考价值**：
+- 文档类技能的输出规范设计
+- 结构化输出的格式约束
+- 从需求分析到文档交付的完整链路
+
+**结构特点**：单文件 SKILL，聚焦输出质量与格式一致性。
+
+---
+
+## 示例 3：脚本工程师 Agent（子 Agent）
+
+**位置**：`agent/script-engineer.md`
+
+**核心领域**：自动化脚本工程
+
+**参考价值**：
+- 代码生成类技能的风险边界设计
+- 验证节点的对抗测试思路
+- 执行-校验-验证的反思闭环
+
+**结构特点**：单文件 SKILL，风险边界严格，强调安全执行。
+
+---
+
+## 示例 4：UR-SKILL 自身（完整的生产级 SKILL 包）
+
+**位置**：当前安装的语言目录（即 `SKILL.md` 所在目录）
+
+**核心领域**：SKILL 生成工程
+
+**参考价值**：
+- 完整 SKILL 包的标准化目录结构
+- 能力矩阵四层设计的具体实现（核心领域 + 6 辐射领域 × 4 层）
+- 4 主节点 + 13 子步骤的完整工作流（分析→执行→反思→交付）
+- 门控节点（步骤 10-12）的 6 维检查清单写法
+- 15+ 设计指南的组织方式与交叉引用
+- 9 个模板文件的示例填充
+- 3 个子 Agent 的能力矩阵与工作流设计
+- 盲区三层处理机制、Loop 循环原则、风险边界声明
+- 自包含引用（所有 `./` 引用均指向 SKILL 包内部文件）
+
+**目录结构**：
+```
+UR-SKILL-CN/
+├── SKILL.md                      # 主文件（能力架构 + 工作流 + 规则）
+├── design-guides/                # 设计指南（生成方法论的具体规则）
+│   ├── skill-package-design-guide.md
+│   ├── capability-design-guide.md
+│   ├── workflow-design-guide.md
+│   ├── structure-design-guide.md
+│   ├── output-design-guide.md
+│   ├── tool-invocation-design-guide.md
+│   ├── identity-design-guide.md
+│   ├── boundary-design-guide.md
+│   ├── rules-design-guide.md
+│   ├── ref-types-design-guide.md
+│   ├── glossary-design-guide.md
+│   ├── examples-design-guide.md
+│   ├── scripts-design-guide.md
+│   ├── assets-design-guide.md
+│   └── spec-design-guide.md
+├── templates/                    # 模板文件
+│   ├── skill-template.md
+│   ├── capability-architecture-template.md
+│   ├── workflow-template.md
+│   ├── metadata-spec.md
+│   ├── identity-template.md
+│   ├── boundary-template.md
+│   ├── rules-template.md
+│   ├── scripts-template.md
+│   └── assets-template.md
+├── References/                   # 运行时参考（反模式 + 故障诊断 + 术语表）
+│   ├── anti-patterns.md
+│   ├── troubleshooting.md
+│   └── glossary.md
+├── agent/                        # 子 Agent（调查分析 + 技术文档 + 脚本自动化）
+│   ├── research-analyst.md
+│   ├── tech-documentation.md
+│   └── script-engineer.md
+├── Scripts/                      # 校验脚本
+│   ├── validate_skill.py
+│   ├── validator_format.py
+│   ├── validator_content.py
+│   ├── validator_runtime.py
+│   └── bilingual_sync.py
+└── examples/                     # 本文件
+    └── examples.md
 ```
 
-**Rationale**：简单 SKILL 的核心任务单一（命名转换），辐射领域 3 个即可覆盖，无需外部知识库或独立 references/。工作流简化为 4 步，规则仅 3 条，全部内联在 body 中。
-
-**边界说明**：本示例假设用户输入是中文/英文自然语言，输出为 Python 标识符；不处理其他编程语言命名规范。
+**自吃狗粮说明**：UR-SKILL 本身由其自身方法论设计生成，并通过自校验（test_self_validate.py）确保格式、内容、运行时三层验证全部通过。查看 UR-SKILL 自身的 SKILL.md 就是从方法论到产物的最佳端到端示例。
 
 ---
 
-## 示例 2：中等 SKILL（+ references/）
+## 如何选择参考对象
 
-**用户输入**：
-> 写一个 Kubernetes 容器安全基线调研的 SKILL，要引用官方文档和 NSA/CISA 指南。
-
-**核心任务**：联网调查分析报告工程
-
-**输出结构要点**：
-
-- `references/source-evaluation-guide.md`：来源分级标准
-- `references/output-template.md`：报告结构模板
-- `references/examples.md`：更多示例
-- body 中保留：能力矩阵、工作流、规则、风险边界
-
-**能力矩阵设计要点**：
-
-| 类型 | 示例 |
+| 你的场景 | 优先参考 |
 |:---|:---|
-| 核心领域 | 联网调查分析工程 |
-| 辐射领域 | 研究方法论、信息检索工程、来源评估、证据综合、报告设计、质量治理 |
-
-注意：辐射领域是独立专业能力，而不是“解析→检索→评估→写作”这种流水线。
-
-**Rationale**：中等复杂度 SKILL 依赖外部知识库（NSA/CISA 指南、Kubernetes 官方文档），需要将来源分级、报告结构、更多示例下沉到 references/，避免 body 超过 500 行。辐射领域 6 个覆盖调研分析的完整链路。
-
-**边界说明**：本示例聚焦容器安全基线调研，不覆盖运行时入侵检测、漏洞利用验证或具体环境的配置下发。
-
----
-
-## 示例 3：复杂 SKILL（+ references/ + scripts/ + assets/）
-
-**用户输入**：
-> 做一个 Python 代码审查 SKILL，能调用 pylint/mypy 做静态检查，还能输出带行号的 Markdown 报告。
-
-**核心任务**：Python 代码质量保障工程
-
-**输出结构要点**：
-
-- `scripts/run_linters.py`：调用 pylint/mypy 并解析输出
-- `assets/report-template.md`：报告模板
-- `references/domain-knowledge/`：Python 安全漏洞模式、PEP 8 规范
-- body 中保留：能力矩阵、工作流、规则、风险边界、脚本调用说明
-
-**Rationale**：复杂 SKILL 需要调用外部可执行脚本（pylint/mypy）、使用静态报告模板，并依赖大量领域知识（PEP 8、OWASP Python Top 10）。这些资源必须拆分到 scripts/、assets/、references/，实现渐进式加载。
-
-**边界说明**：本示例聚焦静态代码审查，不执行被审查代码，也不替代安全渗透测试或人工代码评审。
-
----
-
-## 常见错误示例
-
-### 错误：能力矩阵写成工作流
-
-```markdown
-**辐射领域**：
-| A 解析需求 | ... |
-| B 检索资料 | ... |
-| C 评估来源 | ... |
-| D 生成报告 | ... |
-```
-
-**问题**：这些是按时间顺序的工作流步骤，不是独立能力域。排序后会破坏逻辑。
-
-**修正**：改为独立专业能力，例如“研究方法论”“信息检索工程”“来源评估学”“知识综合”“报告设计”。
+| 做一个简单的单文件技能 | 3 个子 Agent 中的任意一个 |
+| 做调研 / 信息收集类技能 | 调查分析师 Agent |
+| 做文档 / 内容生成类技能 | 技术文档工程师 Agent |
+| 做代码 / 脚本类技能 | 脚本工程师 Agent |
+| 做完整的生产级 SKILL 包 | UR-SKILL 自身的 SKILL.md + 目录结构 |
+| 学习设计指南如何组织 | UR-SKILL 的 design-guides/ 目录 |
+| 学习工作流门控的写法 | UR-SKILL 的步骤 10-12（校验→验证→循环判定） |

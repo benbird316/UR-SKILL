@@ -37,3 +37,27 @@ def zh_config(scripts_dir: Path) -> dict:
 def en_config(en_scripts_dir: Path) -> dict:
     """英文校验配置（en-us），从 EN 目录加载。"""
     return load_config("en-us", en_scripts_dir)
+
+
+@pytest.fixture(scope="session")
+def ur_skill_cn_dir() -> Path:
+    """UR-SKILL-CN 项目根目录。"""
+    return ROOT / "UR-SKILL-CN"
+
+
+@pytest.fixture(scope="session")
+def ur_skill_en_dir() -> Path:
+    """UR-SKILL-EN 项目根目录。"""
+    return ROOT / "UR-SKILL-EN"
+
+
+@pytest.fixture(scope="session")
+def ur_skill_cn_text(ur_skill_cn_dir: Path) -> str:
+    """读取 UR-SKILL-CN 自身的 SKILL.md。"""
+    return (ur_skill_cn_dir / "SKILL.md").read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="session")
+def ur_skill_en_text(ur_skill_en_dir: Path) -> str:
+    """读取 UR-SKILL-EN 自身的 SKILL.md。"""
+    return (ur_skill_en_dir / "SKILL.md").read_text(encoding="utf-8")

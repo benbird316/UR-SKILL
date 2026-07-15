@@ -3,16 +3,20 @@ name: Validate SKILLs
 on:
   push:
     paths:
+      - '.github/workflows/**'
       - 'UR-SKILL-CN/**'
       - 'UR-SKILL-EN/**'
       - 'Examples/**'
       - 'tests/**'
+      - '**/templates/**'
   pull_request:
     paths:
+      - '.github/workflows/**'
       - 'UR-SKILL-CN/**'
       - 'UR-SKILL-EN/**'
       - 'Examples/**'
       - 'tests/**'
+      - '**/templates/**'
 
 permissions:
   contents: read
@@ -25,17 +29,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
         with:
           python-version: '3.12'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyyaml==6.0.2 pytest==8.3.5
+          pip install pyyaml==6.0.2 pytest==8.3.5 pytest-cov==6.1.1 jsonschema==4.23.0
 
       - name: Validate UR-SKILL-CN (zh-cn)
         run: |
@@ -45,19 +49,13 @@ jobs:
         run: |
           python UR-SKILL-EN/Scripts/validate_skill.py --skill-dir UR-SKILL-EN --lang en-us
 
-      - name: Validate Examples
+      - name: Run integration tests (end-to-end SKILL validation)
         run: |
-          for d in Examples/*/; do
-            if [ -f "${d}SKILL.md" ]; then
-              example_name=$(basename "$d")
-              echo "Validating ${d}"
-              python UR-SKILL-CN/Scripts/validate_skill.py --skill-dir "${d}" --lang zh-cn || echo "::warning::Example '${example_name}' validation has issues, see above for details"
-            fi
-          done
+          python Scripts/ci_validate_examples.py
 
       - name: Run unit tests
         run: |
-          python -m pytest tests/ -v
+          python -m pytest tests/ -v --cov=UR-SKILL-CN/Scripts --cov-fail-under=60 --durations=5
 
   bilingual-sync:
     name: Check CN/EN structure alignment
@@ -66,10 +64,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
         with:
           python-version: '3.12'
 

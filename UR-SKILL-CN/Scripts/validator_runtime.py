@@ -20,6 +20,7 @@ def validate(ctx: SkillContext, config: dict[str, Any]) -> list[Finding]:
     findings.extend(_validate_output_spec(ctx, config))
     findings.extend(_validate_file_dependency(ctx, config))
     findings.extend(_validate_ur_skill_leaks(ctx, config))
+    findings.extend(_validate_tool_reference_table(ctx, config))
     return findings
 
 
@@ -52,7 +53,16 @@ def _validate_references(ctx: SkillContext, config: dict[str, Any]) -> list[Find
         if not _check_ref_exists(f"References/{ref}", skill_dir):
             findings.append(Finding("missing-reference", msgs["reference_missing"].format(path=f"References/{ref}"), "error"))
 
+    # Post-filter: exclude glob patterns and bare directory names without file extension
+    _valid_script_exts = {".py", ".sh", ".ps1", ".bat", ".js", ".ts", ".md", ".yaml", ".yml", ".json"}
     for script in set(scr):
+        # Skip: contains wildcard (glob pattern like validate_*.py)
+        if "*" in script or "?" in script:
+            continue
+        # Skip: last segment has no extension AND no subdirectory (e.g. "assets" from "scripts/assets 需求")
+        script_path = Path(script)
+        if script_path.suffix not in _valid_script_exts and "/" not in script and "\\" not in script:
+            continue
         if not _check_ref_exists(f"Scripts/{script}", skill_dir):
             findings.append(Finding("missing-script", msgs["script_missing"].format(path=f"Scripts/{script}"), "error"))
 
@@ -92,7 +102,6 @@ def _validate_tool_binding(ctx: SkillContext, config: dict[str, Any]) -> list[Fi
 
     action_lines = re.findall(r"^\s*\d+\.\s+(.+)", workflow_body, re.MULTILINE)
     tool_pattern = re.compile(r"\[([A-Za-z_][A-Za-z0-9_]*)\]")
-    known_tools = set(tools_cfg.get("known", []))
 
     has_any_tool = False
     unbound_lines = []
@@ -177,10 +186,10 @@ _UR_SKILL_FILES: set[str] | None = None
 def _discover_ur_skill_files(ctx: SkillContext, config: dict[str, Any]) -> set[str]:
     """发现 UR-SKILL 内部文件，用于泄漏检测。
 
-    内置路径沙箱：解析后的 ur_skill_root 必须在 Scripts 目录的父级仓库根目录内。
+    内置路径沙箱：解析后的 skill_dir 必须在 Scripts 目录的父级仓库根目录内。
     """
-    script_dir = ctx.path.resolve().parent
-    ur_skill_root = script_dir.resolve()
+    skill_dir = ctx.path.resolve().parent
+    ur_skill_root = skill_dir.resolve()
 
     # 沙箱约束：ur_skill_root 不能逃逸项目根目录
     project_root = Path(__file__).resolve().parent.parent.resolve()  # UR-SKILL-CN/ or UR-SKILL-EN/
@@ -225,8 +234,8 @@ def _validate_ur_skill_leaks(ctx: SkillContext, config: dict[str, Any]) -> list[
         return findings
 
     leaked: set[str] = set()
-    for sb_file in _UR_SKILL_FILES:
-        escaped = re.escape(sb_file)
+    for internal_file in _UR_SKILL_FILES:
+        escaped = re.escape(internal_file)
         patterns = [
             rf'\b{escaped}\b',
             rf'\./{escaped}\b',
@@ -234,10 +243,42 @@ def _validate_ur_skill_leaks(ctx: SkillContext, config: dict[str, Any]) -> list[
         ]
         for pat in patterns:
             if re.search(pat, body_clean):
-                leaked.add(sb_file)
+                leaked.add(internal_file)
                 break
 
     for f in sorted(leaked):
         findings.append(Finding("ur-skill-leak", msgs["ur_skill_leak"].format(path=f), "error"))
+
+    return findings
+
+
+def _validate_tool_reference_table(ctx: SkillContext, config: dict[str, Any]) -> list[Finding]:
+    """Check that if workflow uses tool bindings, a tool reference table exists.
+
+    Rule: "SKILL 工作流动作需绑定工具名并建立工具引用表" (3.1-14).
+    """
+    findings: list[Finding] = []
+    msgs = config.get("messages", {})
+    body = ctx.body
+
+    name = ctx.frontmatter.get("name", "")
+    if name in config.get("tools", {}).get("binding_exempt_skills", []):
+        return findings
+
+    # Check if workflow uses tool bindings
+    has_tool_binding = bool(re.search(r'\[(?:Read|Write|Edit|DeleteFile|RunCommand|Grep|Glob|LS|Task|Skill|WebSearch|WebFetch|AskUserQuestion|NotifyUser|TodoWrite|OpenPreview|GetDiagnostics|SearchCodebase|CheckCommandStatus|StopCommand|run_mcp)\]', body))
+    if not has_tool_binding:
+        return findings
+
+    # Check for tool reference table
+    tr_patterns = config.get("tool_reference_table", {}).get("patterns", [])
+    has_table = any(re.search(p, body) for p in tr_patterns)
+
+    if not has_table:
+        findings.append(Finding(
+            "tool-reference-table-missing",
+            msgs.get("tool_reference_table_missing", ""),
+            "warning",
+        ))
 
     return findings
