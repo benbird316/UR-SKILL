@@ -187,7 +187,7 @@ cp UR-SKILL-CN/agent/*.md .cursor/agents/
 |:---|:---|:---|
 | **A — 从零生成** | `"我需要一个 Python 安全代码审查 SKILL"` | 完整工作流：调研领域、设计能力矩阵、产出完整技能包 |
 | **B1 — 外部技能优化** | 粘贴来自 Cursor / Claude Code / 任意平台的技能 | 拆解现有技能，对照 UR-SKILL 标准差距分析，重建为完整体系 |
-| **B2 — 内部技能优化** | `"优化我的 tech-doc-optimizer 技能"` | 6 维度审计、反模式扫描、规则强化，升级已有 UR-SKILL 技能 |
+| **B2 — 内部技能优化** | `"优化我的 cn-en-tech-translator 技能"` | 6 维度审计、反模式扫描、规则强化，升级已有 UR-SKILL 技能 |
 | **C — 知识提取** | `"根据这份文档，生成一个对应领域的 SKILL"` | 读取知识源 → 提取领域事实 → 构建编码该领域知识的技能 |
 
 **无需手动指定模式**——前置分析引擎通过内容特征自动识别路由。
@@ -197,7 +197,7 @@ cp UR-SKILL-CN/agent/*.md .cursor/agents/
 ### 验证生成的技能
 
 ```bash
-python UR-SKILL-CN/Scripts/validate_skill.py --skill-dir Examples/tech-doc-optimizer --lang zh-cn
+python UR-SKILL-CN/Scripts/validate_skill.py --skill-dir Examples/cn-en-tech-translator --lang zh-cn
 ```
 
 ### 双语一致性检查
@@ -360,9 +360,7 @@ UR-SKILL/
 ├── UR-SKILL-EN/           # 英文版（自包含；agent/ 为合并的单 SKILL.md）
 │
 └── Examples/              # UR-SKILL 生成的生产级技能
-    ├── cn-en-tech-translator/   # 中译英技术文档翻译技能（自吃狗粮：项目自身双语翻译即用它完成）
-    ├── tech-doc-optimizer/
-    └── web-research-analyst/
+    └── cn-en-tech-translator/   # 中译英技术文档翻译技能（自吃狗粮：项目自身双语翻译即用它完成）
 ```
 
 **关键设计决策**：

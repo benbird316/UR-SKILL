@@ -187,7 +187,7 @@ cp UR-SKILL-EN/agent/*.md .cursor/agents/
 |:---|:---|:---|
 | **A -- Generate from Scratch** | `"I need a Python security code review SKILL"` | Full workflow: research domain, design capability matrix, produce complete skill package |
 | **B1 -- External Skill Optimization** | Paste a skill from Cursor / Claude Code / any platform | Deconstruct existing skill, run gap analysis against UR-SKILL standards, rebuild as complete system |
-| **B2 -- Internal Skill Optimization** | `"Optimize my tech-doc-optimizer skill"` | 6-dimension audit, anti-pattern scan, rule reinforcement, upgrade existing UR-SKILL skill |
+| **B2 -- Internal Skill Optimization** | `"Optimize my cn-en-tech-translator skill"` | 6-dimension audit, anti-pattern scan, rule reinforcement, upgrade existing UR-SKILL skill |
 | **C -- Knowledge Extraction** | `"Generate a SKILL for this domain based on this document"` | Read knowledge source -> extract domain facts -> build skill encoding that domain knowledge |
 
 **No need to specify mode manually** -- the pre-analysis engine automatically identifies and routes based on content characteristics.
