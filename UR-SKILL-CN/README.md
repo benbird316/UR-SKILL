@@ -18,6 +18,8 @@
 
 它不是另一个提示词模板。它是一座**工厂**：一套 4 阶段、13 步的验证工作流 × 6 维度审视 × 能力矩阵，系统化地设计、评审并产出生产级技能。生成的技能在交付前通过 15+ 项自动化质量检查。完全符合 [agentskills.io](https://agentskills.io/specification) 开放标准。
 
+**本项目自身的 3 个内部 Agent（research-analyst、tech-documentation、script-engineer）均由 UR-SKILL 方法学生成——能力矩阵、工作流、规则体系均遵循 4 阶段 × 13 步 + 6 维度审查标准，仅经人工轻微优化措辞。**
+
 ---
 
 ## 目录
